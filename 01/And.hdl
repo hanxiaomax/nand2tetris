@@ -1,0 +1,30 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/And.hdl
+
+/**
+ * And gate: 
+ * out = 1 if (a == 1 and b == 1)
+ *       0 otherwise
+ Proof:
+ NOT(x) = (x NAND x) 
+ (x AND y) = NOT (x NAND y) 
+ // replace x with (x NAND y)
+ (x AND y) = NOT (x NAND y) = ((x NAND y) NAND (x NAND y))
+
+ */
+
+CHIP And {
+    IN a, b;
+    OUT out;
+
+    PARTS:
+    // Put your code here:
+    Nand(a=a,b=b,out=o1); //(x NAND y)
+    Nand(a=a,b=b,out=o2);//(x NAND y)
+    Nand(a=o1,b=o2,out=out); //  (x AND y) = NOT (x NAND y) = ((x NAND y) NAND (x NAND y))
+    
+
+
+}
