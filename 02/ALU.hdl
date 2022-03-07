@@ -42,5 +42,51 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+Mux16(a=x ,b=false ,sel=zx ,out=x1 );
+	
+	// nx
+	//求not x
+    Not16(in=x1, out=notx1);
+	//使用Mux实现如果设置nx则输出notx，否则输出x
+    Mux16(a=x1,b=notx1,sel=nx ,out=x2 );
+	
+	
+	// zy
+	//Mux：当sel=1时，输出b，否则输出a 这里使用Mux实现如果设置zy则输出0，否则输出
+    Mux16(a=y ,b=false ,sel=zy ,out=y1 );
+	
+	// nz
+	//求not y
+    Not16(in=y1,out=noty1);
+	//使用Mux实现如果设置ny则输出noty，否则输出y
+    Mux16(a=y1,b=noty1,sel=ny ,out=y2 );
+
+	// f
+	//16bit 与
+    And16(a=x2 ,b=y2 ,out=andxy );
+	//16bit 加法
+    Add16(a=x2 ,b=y2 ,out=addxy );
+	//根据f是否set选择输出，f=1则输出addxy，否则andxy
+    Mux16(a=andxy,b=addxy,sel=f,out=xy);
+
+	// no
+	Not16(in=xy,out=notxy);
+    // refer to HDL Survival Guide Multiple Outputs
+	Mux16(a = xy, b = notxy, sel = no, out = out, out=temp);//保留中间结果03
+	
+	//根据out可能的结果填充zr和ng
+	//需要判断out是正数还是负数
+	
+	// zr
+	// 通过16位按位或，计算结果，如果结果为0则为全0，out=0
+    Or16Way(in = temp, out = zr1);
+	// out为0是zr需要置1，因此求一个反
+    Not(in = zr1, out = zr);
+
+    // ng
+	// 判断高位是否为1，是则为负数，输出1到ng
+    // 下面的写法不可用，因为sub-bus只能作用于入参表in中的变量
+    //Or(a=out[15],b=false,out=ng); 
+    //再封装一层
+    Neg(in = temp, out = ng);
 }
