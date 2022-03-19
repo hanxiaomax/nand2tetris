@@ -21,11 +21,33 @@
  * memory map. The behavior in these addresses is described in the 
  * Screen and Keyboard chip specifications given in the book.
  */
+/**
+思路：内存由三个部分组成：
+1. RAM16K 作为主存
+2. Screen (RAM8K) 作为屏幕的内存映射
+3. Keyboard（Register）作为键盘输入的内存映射
+内存接口包括两个输入(in,address)和一个输出(out)，其中输入in 16位，address 15位
+地址的作用有两部分，首先要在三个芯片中选择一个，然后再负责芯片内寻址，为此需要一个
+DMux4Way负责从4路输出中选择一路，DMux4Way为了选择4路，需要2位地址。
+ */
 
 CHIP Memory {
     IN in[16], load, address[15];
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    //4路输出中选择一路，将load操作分配到对应的芯片，DMux4Way为了选择4路，需要2位地址。
+    DMux4Way(in = load, sel = address[13..14], a = ram1, b = ram2, c = scr, d = kbd);
+    
+    //由于前两路都是RAM，所以通过一个OR将其合并为一个输出
+    Or(a = ram1, b = ram2, out = loadRam);
+    
+    //RAM16寻址需要14位地址
+    RAM16K(in = in, load = loadRam, address = address[0..13], out = outRam);
+    Keyboard(out = outK);
+    //RAM8K寻址需要13位地址
+    Screen(in = in, load = scr, address = address[0..12], out = outS);
+
+    // 从上述4个输出中，确定一路作为输出，其中00,01为RAM的输出，10,11分别为屏幕和键盘的输出
+    Mux4Way16(a = outRam, b = outRam, c = outS, d = outK, sel = address[13..14], out = out);
 }

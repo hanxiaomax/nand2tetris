@@ -24,7 +24,22 @@
  * CPU jumps to address 0 (i.e. pc is set to 0 in next time step) rather 
  * than to the address resulting from executing the current instruction. 
  */
-
+/**
+思路：CPU 有三个输入
+- inM:从内存的16位输入
+- instruction：16位指令
+- reset：人工复位按钮1位
+CPU 有四个输出
+- outM：输出到内存的16位输出
+- writeM： 输出到内存的load位
+- addressM：输出到内存的15位地址
+- PC：程序指针15位，输出到指令内存
+其中16位指令的形式为 111 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3 
+- 首位为0则为A指令，1位C指令
+- a表示ALU的输入是A还是M
+- c1-c6对应ALU的6个控制位
+- d1 d2 d3 是否为1分别表示结果是否需要输出到A D M
+ */
 CHIP CPU {
 
     IN  inM[16],         // M value input  (M = contents of RAM[A])
@@ -40,4 +55,77 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+
+    // 判断指令类型，判断最高位是否为1，如果是1则为C指令，使用Not将isA设为0
+    Not(in = instruction[15], out = isA);
+    // 处理A指令，
+    // 注意，A地址可能来自指令也可能来自alu的输出，
+    // 因此需要通过一个选路，将两者其一写入到A寄存器
+    // 判断的依据就是是否为A指令的选择位 isA
+    Mux16(a=aluOut, b=instruction, sel=isA, out=addrout);
+    //在真正输入到A寄存器之前，还需要判断指令的来源，确定是否load
+    //如果是A指令，或者C指令目的地为A寄存器则load
+    Or(a=isA, b=instruction[5], out=toA);
+    //输入到A寄存器，它的输出有两路，A最终会输入到ALU，addressM最终会输出（15位）
+    ARegister(in=addrout, load=toA, out=A, out[0..14]=addressM);
+
+    // 处理C指令，如果是C指令，并且a=1，则使用M输入加法器，否则使用A输入加法器
+    And(a=instruction[15], b=instruction[12], out=useM);
+    //选择输入ALU的是A还是inM
+    Mux16(a=A, b=inM, sel=useM, out=AorM);
+
+    // 继续处理C指令，判断存放计算结果的位置，如果d2=1，则需要输出到D寄存器
+    And(a=instruction[15], b=instruction[4], out=toD);
+    DRegister(in=aluOut,load=toD, out=D);
+
+    //配置ALU
+    //ALU的6个control bit，依次对应C指令的c1-c6
+    //ALU的16位输入x，和y分别对应数据寄存器D或AorM
+    //输出的结果可能为outM，也可能作为A寄存器的输入，即aluOut
+    ALU(x=D, y=AorM, out=aluOut, out=outM,
+        zx=instruction[11],
+        nx=instruction[10],
+        zy=instruction[9],
+        ny=instruction[8],
+        f=instruction[7],
+        no=instruction[6],
+        zr=zero,
+        ng=negative);
+
+        // 继续处理C指令，如果d3=1，则需要输出到M
+        And(a=instruction[15], b=instruction[3], out=writeM);
+
+        //根据ALU的输出结果位，配合j1-j3执行判断是否要JUMP，并送入PC寄存器控制跳转
+         // 继续处理C指令，如果j3=1，则需要尝试执行JGT
+        And(a=instruction[15], b=instruction[0], out=tryJGT);
+        // 继续处理C指令，如果j2=1，则需要执行JEQ
+        And(a=instruction[15], b=instruction[1], out=tryJEQ);
+        // 继续处理C指令，如果j1=1，则需要执行JLT
+        And(a=instruction[15], b=instruction[2], out=tryJLT);
+
+
+         //如果结果out == 0，则zr=1，如果结果out<0则ng=1
+         //等于0和小于0的情况很容易判断
+        //结果等于0，且尝试JEQ
+        And(a=zero, b=tryJEQ, out=jump1);
+        //结果小于0，且尝试JLT
+        And(a=negative, b=tryJLT, out=jump2);
+
+        //对于JGT，由于zr和ng的输出不能直接体现结果是否大于0
+        Not(in=negative, out=positive);//大于0
+        Not(in=zero, out=notzero);//不等于0
+        //结果大于0且不等于0，才是真正的大于0
+        And(a=positive, b=notzero, out=gtzero);
+        And(a=gtzero, b=tryJGT, out=jump3);
+
+        
+        //上述三种jump只要一个满足就jump。
+        Or(a=jump1, b=jump2, out=jump4);
+        Or(a=jump4, b=jump3, out=jumpld);
+         
+
+        //程序寄存器
+        PC(in=A, load=jumpld, inc=true, reset=reset, out[0..14]=pc);
+
 }
+
