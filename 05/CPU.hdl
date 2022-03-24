@@ -78,23 +78,14 @@ CHIP CPU {
     And(a=instruction[15], b=instruction[4], out=toD);
     DRegister(in=aluOut,load=toD, out=D);
 
-    //配置ALU
-    //ALU的6个control bit，依次对应C指令的c1-c6
+    //配置ALU，ALU的6个control bit，依次对应C指令的c1-c6
     //ALU的16位输入x，和y分别对应数据寄存器D或AorM
     //输出的结果可能为outM，也可能作为A寄存器的输入，即aluOut
-    ALU(x=D, y=AorM, out=aluOut, out=outM,
-        zx=instruction[11],
-        nx=instruction[10],
-        zy=instruction[9],
-        ny=instruction[8],
-        f=instruction[7],
-        no=instruction[6],
-        zr=zero,
-        ng=negative);
+    ALU(x=D, y=AorM, out=aluOut, out=outM,zx=instruction[11],nx=instruction[10],zy=instruction[9],ny=instruction[8],
+        f=instruction[7],no=instruction[6],zr=zero,ng=negative);
 
         // 继续处理C指令，如果d3=1，则需要输出到M
         And(a=instruction[15], b=instruction[3], out=writeM);
-
         //根据ALU的输出结果位，配合j1-j3执行判断是否要JUMP，并送入PC寄存器控制跳转
          // 继续处理C指令，如果j3=1，则需要尝试执行JGT
         And(a=instruction[15], b=instruction[0], out=tryJGT);
@@ -102,7 +93,6 @@ CHIP CPU {
         And(a=instruction[15], b=instruction[1], out=tryJEQ);
         // 继续处理C指令，如果j1=1，则需要执行JLT
         And(a=instruction[15], b=instruction[2], out=tryJLT);
-
 
          //如果结果out == 0，则zr=1，如果结果out<0则ng=1
          //等于0和小于0的情况很容易判断
