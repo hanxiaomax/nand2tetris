@@ -26,7 +26,7 @@ class Parser(object):
         self.a_cmd_match = None
         self.binary = [] #存放二进制机器码
         self.index = 0 #当前遍历的汇编文件的行号
-        self.symbol_table = None # 符号表
+        self.symbol_table = SymbolTable() # 符号表
         self.free_ram_address = 16 #第一个RAM空闲地址
         # pogram counter, basic the line of binary code. and it is the pos Lable should jump
         # only increment when Instruction is A or C
@@ -41,7 +41,6 @@ class Parser(object):
         # deal with symbols and addresses 
         with open(self.filename,"r") as f:
             self.commands = f.readlines()
-            self.symbol_table = SymbolTable()
             while self.has_more_cmd():
                 current = self.advance() # fetch next valid command
                 if(self.command_type(current)==CommandType.L_COMMAND):
