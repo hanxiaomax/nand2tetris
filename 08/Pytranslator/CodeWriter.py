@@ -3,11 +3,12 @@ import os
 arithmetic_type = ['add', 'sub', 'neg', 'eq', 'gt', 'lt', 'and', 'or', 'not']
 
 class CodeWrite(object):
-    def __init__(self,vm_filename,output_file):
+    def __init__(self,vm_filename: str,output_file):
         self.asm = output_file
         #用于static变量，但是不需要后缀，也不需要路径
         self.vm_filename = os.path.basename(vm_filename).replace(".vm","")
-        self.bool_label = 0
+        self.bool_label_index = 0
+        self.call_label_index = 0
         self.base_registers = { 
             'local': 'LCL',
             'argument': 'ARG', 
@@ -40,7 +41,7 @@ class CodeWrite(object):
             self.decrement_sp_update()# SP-- 并指向当前栈顶元素
             self.write('D=M-D') # 将当前两个运算符比较大小存放到D
             #创建一个跳转指令，以便对D的值进行判断
-            self.write("@BOOL_START_"+str(self.bool_label))
+            self.write("@BOOL_START_"+str(self.bool_label_index))
             if command == 'eq':
                 self.write('D;JEQ') # if x == y, x - y == 0
             elif command == 'gt':
@@ -57,15 +58,15 @@ class CodeWrite(object):
             self.write("A=M")
             self.write('M=0') # False
             # 赋值结束，无条件跳转到结尾，防止走到else分支
-            self.write('@BOOL_END_'+str(self.bool_label))
+            self.write('@BOOL_END_'+str(self.bool_label_index))
             self.write('0;JMP')
             # 执行跳转条件，表明判断条件成立，栈顶赋值 True
-            self.write("(BOOL_START_{})".format(self.bool_label))
+            self.write("(BOOL_START_{})".format(self.bool_label_index))
             self.write("@SP")
             self.write("A=M")
             self.write('M=-1') # True
-            self.write("(BOOL_END_{})".format(self.bool_label))
-            self.bool_label += 1
+            self.write("(BOOL_END_{})".format(self.bool_label_index))
+            self.bool_label_index += 1
         
         self.increment_sp()#完成计算后，SP要指向栈顶空间，方便后面操作
 
@@ -176,3 +177,136 @@ class CodeWrite(object):
 
     def write_comments(self,comments):
         self.write("// "+comments)
+
+    def write_init(self):
+        """
+        初始化，需要在文件最开始调用
+        SP=256
+        call Sys.init
+        """
+        self.write("@256")
+        self.write("D=A")
+        self.write("@SP")
+        self.write("M=D")
+        self.write_call('Sys.init', 0)
+
+    def write_label(self,label: str):
+        """
+        (LABEL)
+        对于函数内的label，必须要以functionName:label的方式保证唯一性
+        """
+        self.write("({label})".format(label=label.upper()))
+
+    def write_goto(self,label: str):
+        """
+        无条件跳转
+        """
+        self.write("@"+label.upper())
+        self.write('0;JMP')
+
+    def write_if(self,label: str):
+        """
+        有条件跳转，必须先弹出栈顶元素用于判断。
+        该元素是前面的比较运算压入的结果
+        """
+        self.write_pop_from_stack()
+        self.write('@{label}'.format(label=label.upper()))
+        self.write('D;JNE')#False = 0，因此必须使用JNE判断是否跳转
+    
+    def write_function(self,function_name:str,num_locals:int):
+        """
+        每个函数都需要创建一个 (functionName) 符号表示其入口
+        """
+        self.write('({})'.format(function_name.upper()))
+        # 在栈上创建 n 个局部变量
+        for i in range(num_locals): 
+            # push constant 0 
+            # 等价于 self.write_push_pop("push","constant","0")
+            self.write("@0")
+            self.write('D=A')
+            self.write_push_to_stack()
+    
+    def write_call(self,function_name: str,num_args:int):
+        # return_label = self.create_retrun_lable(function_name)
+        return_label = function_name + ":RET" + str(self.call_label_index)
+        self.call_label_index+=1
+        # push return-address
+        self.write('@' + return_label)
+        self.write('D=A')
+        self.write_push_to_stack()
+         
+        for address in ['@LCL', '@ARG', '@THIS', '@THAT']:
+            self.write(address)
+            self.write('D=M')
+            self.write_push_to_stack()
+        
+        
+
+        #reposition LCL
+        self.write('@SP')
+        self.write('D=M')
+        self.write('@LCL')
+        self.write('M=D')
+
+        # ARG = SP-n-5
+        self.write('@' + str(num_args + 5))
+        self.write('D=D-A')
+        self.write('@ARG')
+        self.write('M=D')
+        
+
+        self.write('@' + function_name)
+        self.write('0;JMP')
+
+        # (return_address)
+        self.write('({return_label})'.format(return_label=return_label))
+
+    def write_return(self):
+        _frame = "R13"
+        _return = "R14" 
+
+        # FRAME = LCL
+        self.write('@LCL')
+        self.write('D=M')
+        self.write('@' + _frame)
+        self.write('M=D')
+
+        # RET = *(FRAME-5)
+        # Can't be included in iterator b/c value will be overwritten if num_args=0
+        self.write('@' + _frame)
+        self.write('D=M') # Save start of frame
+        self.write('@5')
+        self.write('D=D-A') # Adjust address
+        self.write('A=D') # Prepare to load value at address
+        self.write('D=M') # Store value
+        self.write('@' + _return)
+        self.write('M=D') # Save value
+
+        
+        self.write_pop_from_stack()
+        self.write('@ARG')
+        self.write('A=M')
+        self.write('M=D')
+
+        # SP = ARG+1
+        self.write('@ARG')
+        self.write('D=M')
+        self.write('@SP')
+        self.write('M=D+1')
+
+        offset = 1
+        for address in ['@THAT', '@THIS', '@ARG', '@LCL']:
+            self.write('@' + _frame)
+            self.write('D=M') # Save start of frame
+            self.write('@' + str(offset))
+            self.write('D=D-A') # Adjust address
+            self.write('A=D') # Prepare to load value at address
+            self.write('D=M') # Store value
+            self.write(address)
+            self.write('M=D') # Save value
+            offset += 1
+
+        # goto RET
+        self.write('@' + _return)
+        self.write('A=M')
+        self.write('0;JMP')

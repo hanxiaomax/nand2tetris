@@ -6,7 +6,12 @@ class CommandType(Enum):
     ARITHMETIC = 1,
     PUSH = 2,
     POP = 3,
-
+    LABEL = 4,
+    GOTO = 5,
+    IF_GOTO = 6,
+    FUNCTION = 7,
+    RETURN = 8,
+    CALL = 9
 
 class Translator(object):
     def __init__(self,filename):
@@ -28,6 +33,7 @@ class Translator(object):
         self.out_file_handler = open(self.output_filename,'w')
         self.commands = self.in_file_handler.readlines()
         self.cw = CodeWrite(self.input_filename,self.out_file_handler)#the input filename used for static var
+        self.cw.write_init() # call sys.init if exists
         return self
 
     def __exit__(self,exc_type,exc_val,exc_tb):
@@ -71,13 +77,26 @@ class Translator(object):
         while self.has_more_cmd():
             current = self.get_next_cmd() 
             current_tokens = self.tokenize(current)
-            cmd_type = self.get_cmd_type(current_tokens)
+            cmd_type = self.get_cmd_type(current_tokens[0])
+            self.cw.write_comments("Translate command: {cmd}".format(cmd=current))
             if cmd_type == CommandType.POP or cmd_type == CommandType.PUSH:
-                self.cw.write_comments("Translate command: {cmd}".format(cmd=current))
+                # self.cw.write_comments("Translate command: {cmd}".format(cmd=current))
                 self.cw.write_push_pop(current_tokens[0],current_tokens[1],current_tokens[2])
             elif cmd_type == CommandType.ARITHMETIC:
-                self.cw.write_comments("Translate command: {cmd}".format(cmd=current))
+                # self.cw.write_comments("Translate command: {cmd}".format(cmd=current))
                 self.cw.write_arithmetic(current_tokens[0])
+            elif cmd_type == CommandType.LABEL: # label (LABEL)
+                self.cw.write_label(current_tokens[1])
+            elif cmd_type == CommandType.GOTO: # goto (LABEL)
+                self.cw.write_goto(current_tokens[1])
+            elif cmd_type == CommandType.IF_GOTO:# if-goto (LABEL)
+                self.cw.write_if(current_tokens[1])
+            elif cmd_type == CommandType.FUNCTION:# function f k
+                self.cw.write_function(current_tokens[1],int(current_tokens[2]))
+            elif cmd_type == CommandType.RETURN:# return 
+                self.cw.write_return()
+            elif cmd_type == CommandType.CALL:# call f n
+                self.cw.write_call(current_tokens[1],int(current_tokens[2]))
             else:
                 raise NotImplementedError
             # print("{: <12}:  {: <30}".format(str(cmd_type).replace("CommandType.",""),current))
@@ -87,12 +106,24 @@ class Translator(object):
         map(lambda x:x.strip(),tokens)
         return tokens
 
-    def get_cmd_type(self,tokens):
-        if tokens[0] == "pop":
+    def get_cmd_type(self,cmd):
+        if cmd == "pop":
             return CommandType.POP
-        elif tokens[0] == "push":
+        elif cmd == "push":
             return CommandType.PUSH
-        elif tokens[0] in arithmetic_type:
+        elif cmd in arithmetic_type:
             return CommandType.ARITHMETIC
+        elif cmd == "label":
+            return CommandType.LABEL
+        elif cmd == "goto":
+            return CommandType.GOTO
+        elif cmd == "if-goto":
+            return CommandType.IF_GOTO
+        elif cmd == "function":
+            return CommandType.FUNCTION
+        elif cmd == "return":
+            return CommandType.RETURN
+        elif cmd == "call":
+            return CommandType.CALL
         else:
             raise NotImplementedError
