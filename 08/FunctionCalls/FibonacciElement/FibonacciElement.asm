@@ -2,7 +2,7 @@
 D=A
 @SP
 M=D
-@Sys.init:RET0
+@Sys.initRET0
 D=A
 @SP
 A=M
@@ -47,9 +47,9 @@ D=D-A
 M=D
 @Sys.init
 0;JMP
-(Sys.init:RET0)
+(Sys.initRET0)
 // Translate command: function Main.fibonacci 0
-(MAIN.FIBONACCI)
+(Main$Main.fibonacci)
 // Translate command: push argument 0
 @ARG
 D=M
@@ -100,13 +100,13 @@ M=M-1
 @SP
 A=M
 D=M
-@IF_TRUE
+@Main$IF_TRUE
 D;JNE
 // Translate command: goto IF_FALSE
-@IF_FALSE
+@Main$IF_FALSE
 0;JMP
 // Translate command: label IF_TRUE          
-(IF_TRUE)
+(Main$IF_TRUE)
 // Translate command: push argument 0
 @ARG
 D=M
@@ -123,6 +123,7 @@ M=M+1
 D=M
 @R13
 M=D
+// RET = *(FRAME-5)
 @R13
 D=M
 @5
@@ -131,6 +132,7 @@ A=D
 D=M
 @R14
 M=D
+// *ARG = pop
 @SP
 M=M-1
 @SP
@@ -175,11 +177,12 @@ A=D
 D=M
 @LCL
 M=D
+// goto RET
 @R14
 A=M
 0;JMP
 // Translate command: label IF_FALSE         
-(IF_FALSE)
+(Main$IF_FALSE)
 // Translate command: push argument 0
 @ARG
 D=M
@@ -213,7 +216,7 @@ M=M-D
 @SP
 M=M+1
 // Translate command: call Main.fibonacci 1  
-@main.fibonacci:RET1
+@Main.fibonacciRET1
 D=A
 @SP
 A=M
@@ -256,9 +259,9 @@ M=D
 D=D-A
 @ARG
 M=D
-@main.fibonacci
+@Main.fibonacci
 0;JMP
-(main.fibonacci:RET1)
+(Main.fibonacciRET1)
 // Translate command: push argument 0
 @ARG
 D=M
@@ -292,7 +295,7 @@ M=M-D
 @SP
 M=M+1
 // Translate command: call Main.fibonacci 1  
-@main.fibonacci:RET2
+@Main.fibonacciRET2
 D=A
 @SP
 A=M
@@ -335,9 +338,9 @@ M=D
 D=D-A
 @ARG
 M=D
-@main.fibonacci
+@Main.fibonacci
 0;JMP
-(main.fibonacci:RET2)
+(Main.fibonacciRET2)
 // Translate command: add                    
 @SP
 M=M-1
@@ -356,6 +359,7 @@ M=M+1
 D=M
 @R13
 M=D
+// RET = *(FRAME-5)
 @R13
 D=M
 @5
@@ -364,6 +368,7 @@ A=D
 D=M
 @R14
 M=D
+// *ARG = pop
 @SP
 M=M-1
 @SP
@@ -408,6 +413,69 @@ A=D
 D=M
 @LCL
 M=D
+// goto RET
 @R14
 A=M
+0;JMP
+// Translate command: function Sys.init 0
+(Sys$Sys.init)
+// Translate command: push constant 4
+@4
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+// Translate command: call Main.fibonacci 1   
+@Main.fibonacciRET3
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@LCL
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@ARG
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@THIS
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@THAT
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@SP
+D=M
+@LCL
+M=D
+@6
+D=D-A
+@ARG
+M=D
+@Main.fibonacci
+0;JMP
+(Main.fibonacciRET3)
+// Translate command: label WHILE
+(Sys$WHILE)
+// Translate command: goto WHILE              
+@Sys$WHILE
 0;JMP

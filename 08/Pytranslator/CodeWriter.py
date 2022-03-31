@@ -1,12 +1,14 @@
-import os
+import traceback
 
 arithmetic_type = ['add', 'sub', 'neg', 'eq', 'gt', 'lt', 'and', 'or', 'not']
 
-class CodeWrite(object):
-    def __init__(self,vm_filename: str,output_file):
-        self.asm = output_file
+class CodeWriter(object):
+    def __init__(self, output_file):
+        self.asm_name = output_file 
+        self.asm = None
         #用于static变量，但是不需要后缀，也不需要路径
-        self.vm_filename = os.path.basename(vm_filename).replace(".vm","")
+        self.ns_file = None # namespace file
+        self.ns_function = None # namespace function
         self.bool_label_index = 0
         self.call_label_index = 0
         self.base_registers = { 
@@ -18,6 +20,24 @@ class CodeWrite(object):
             'temp': 5, 
             'static': 16, 
         }
+       
+    def __enter__(self):
+        print("Open file ",self.asm_name)
+        self.asm = open(self.asm_name,'w')
+        self.write_init() # call sys.init if exists
+        return self
+
+    def __exit__(self,exc_type,exc_val,exc_tb):
+        print("CodeWriter exit, close ",self.asm_name)
+        self.asm.close()
+        if exc_val:
+            print("exit:", exc_type, exc_val, exc_tb)
+            print(traceback.print_tb(exc_tb))
+        return True
+
+    def set_current_vmfile(self,ns_file):
+        self.ns_file = ns_file
+
 
     def write_arithmetic(self,command):
         if command in ("not","neg"):#一元运算符
@@ -113,7 +133,7 @@ class CodeWrite(object):
         elif segment in  ("temp","pointer"): #fixed segment, (address = base + i)
             self.write('@R'+ str(base_register + int(index))) #select Register Rx
         elif segment == "static": # global var use special label (@filename.i)
-            self.write("@" + self.vm_filename + '.' + str(index))
+            self.write("@" + self.ns_file + '.' + str(index))
         else:
             print("[ERROR]Invalid segment: ",segment)
             raise NotImplementedError
@@ -195,13 +215,13 @@ class CodeWrite(object):
         (LABEL)
         对于函数内的label，必须要以functionName:label的方式保证唯一性
         """
-        self.write("({label})".format(label=label.upper()))
+        self.write("({vmfile}${label})".format(vmfile = self.ns_file,label=label))
 
     def write_goto(self,label: str):
         """
         无条件跳转
         """
-        self.write("@"+label.upper())
+        self.write('@{vmfile}${label}'.format(vmfile = self.ns_file,label=label))
         self.write('0;JMP')
 
     def write_if(self,label: str):
@@ -210,14 +230,15 @@ class CodeWrite(object):
         该元素是前面的比较运算压入的结果
         """
         self.write_pop_from_stack()
-        self.write('@{label}'.format(label=label.upper()))
+        self.write('@{vmfile}${label}'.format(vmfile = self.ns_file,label=label))
         self.write('D;JNE')#False = 0，因此必须使用JNE判断是否跳转
     
     def write_function(self,function_name:str,num_locals:int):
         """
+        函数定义并初始化局部变量
         每个函数都需要创建一个 (functionName) 符号表示其入口
         """
-        self.write('({})'.format(function_name.upper()))
+        self.write('({vmfile}${function_name})'.format(vmfile = self.ns_file,function_name=function_name))
         # 在栈上创建 n 个局部变量
         for i in range(num_locals): 
             # push constant 0 
@@ -228,7 +249,7 @@ class CodeWrite(object):
     
     def write_call(self,function_name: str,num_args:int):
         # return_label = self.create_retrun_lable(function_name)
-        return_label = function_name + ":RET" + str(self.call_label_index)
+        return_label = function_name + "RET" + str(self.call_label_index)
         self.call_label_index+=1
         # push return-address
         self.write('@' + return_label)
@@ -262,6 +283,7 @@ class CodeWrite(object):
         self.write('({return_label})'.format(return_label=return_label))
 
     def write_return(self):
+        
         _frame = "R13"
         _return = "R14" 
 
@@ -272,7 +294,7 @@ class CodeWrite(object):
         self.write('M=D')
 
         # RET = *(FRAME-5)
-        # Can't be included in iterator b/c value will be overwritten if num_args=0
+        self.write_comments("RET = *(FRAME-5)")
         self.write('@' + _frame)
         self.write('D=M') # Save start of frame
         self.write('@5')
@@ -282,7 +304,8 @@ class CodeWrite(object):
         self.write('@' + _return)
         self.write('M=D') # Save value
 
-        
+        # *ARG = pop
+        self.write_comments("*ARG = pop")
         self.write_pop_from_stack()
         self.write('@ARG')
         self.write('A=M')
@@ -294,6 +317,10 @@ class CodeWrite(object):
         self.write('@SP')
         self.write('M=D+1')
 
+        # THAT = *(FRAME-1)
+        # THIS = *(FRAME-2)
+        # ARG = *(FRAME-3)
+        # LCL = *(FRAME-4)
         offset = 1
         for address in ['@THAT', '@THIS', '@ARG', '@LCL']:
             self.write('@' + _frame)
@@ -306,7 +333,9 @@ class CodeWrite(object):
             self.write('M=D') # Save value
             offset += 1
 
+
         # goto RET
+        self.write_comments("goto RET")
         self.write('@' + _return)
         self.write('A=M')
         self.write('0;JMP')
