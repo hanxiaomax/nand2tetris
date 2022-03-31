@@ -252,9 +252,9 @@ class CodeWriter(object):
         self.write('D;JNE')#False = 0，因此必须使用JNE判断是否跳转
     
     def set_function_namespace(self,function_name):
-        return 
-        self.write_comments("namespace changes to {}".format(function_name))
         self.ns_function= function_name 
+        self.write_comments("namespace changes to {}".format(function_name))
+        
 
     def write_function(self,function_name:str,num_locals:int):
         """

@@ -1,8 +1,9 @@
-// //// Processing None.vm
+// //// Processing SimpleFunction.vm
 // File namespace changes to SimpleFunction
 // Translate command: function SimpleFunction.test 2
 // define function SimpleFunction.test
 (SimpleFunction.test)
+// namespace changes to SimpleFunction.test
 @0
 D=A
 @SP
