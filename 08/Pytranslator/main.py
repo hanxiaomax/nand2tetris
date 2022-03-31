@@ -21,7 +21,7 @@ if __name__ == "__main__":
         for vmfile in vmfiles:
             translator = Translator(vmfile)
             vmfilename = vmfile.split("/")[-1].split(".")[0]
-            code_writer.set_current_vmfile(vmfilename)
+            code_writer.set_filename_namespace(vmfilename)
             translator.set_codewriter(code_writer)
             translator.translate()
             translator.close()
