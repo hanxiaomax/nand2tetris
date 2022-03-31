@@ -55,11 +55,12 @@ M=D
 0;JMP
 // create the returning point
 (Sys.initRET0)
-// //// Processing None.vm
+// //// Processing Main.vm
 // File namespace changes to Main
 // Translate command: function Main.fibonacci 0
 // define function Main.fibonacci
 (Main.fibonacci)
+// namespace changes to Main.fibonacci
 // Translate command: push argument 0
 @ARG
 D=M
@@ -110,13 +111,13 @@ M=M-1
 @SP
 A=M
 D=M
-@IF_TRUE
+@Main.fibonacci:IF_TRUE
 D;JNE
 // Translate command: goto IF_FALSE
-@IF_FALSE
+@Main.fibonacci:IF_FALSE
 0;JMP
 // Translate command: label IF_TRUE          
-(IF_TRUE)
+(Main.fibonacci:IF_TRUE)
 // Translate command: push argument 0
 @ARG
 D=M
@@ -192,7 +193,7 @@ M=D
 A=M
 0;JMP
 // Translate command: label IF_FALSE         
-(IF_FALSE)
+(Main.fibonacci:IF_FALSE)
 // Translate command: push argument 0
 @ARG
 D=M
@@ -439,11 +440,12 @@ M=D
 @R14
 A=M
 0;JMP
-// //// Processing Main.vm
+// //// Processing Sys.vm
 // File namespace changes to Sys
 // Translate command: function Sys.init 0
 // define function Sys.init
 (Sys.init)
+// namespace changes to Sys.init
 // Translate command: push constant 4
 @4
 D=A
@@ -506,7 +508,7 @@ M=D
 // create the returning point
 (Main.fibonacciRET3)
 // Translate command: label WHILE
-(WHILE)
+(Sys.init:WHILE)
 // Translate command: goto WHILE              
-@WHILE
+@Sys.init:WHILE
 0;JMP

@@ -35,10 +35,6 @@ class CodeWriter(object):
             print(traceback.print_tb(exc_tb))
         return True
 
-    # def set_current_vmfile(self,ns_file):
-    #     self.ns_file = ns_file
-    #     self.write_comments("//// Processing {}.vm".format(self.ns_file))
-
     def set_filename_namespace(self,filename):
         self.ns_file= filename 
         self.write_comments("//// Processing {}.vm".format(self.ns_file))
