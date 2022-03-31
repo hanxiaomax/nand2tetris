@@ -2,15 +2,13 @@
 D=A
 @SP
 M=D
-// push return address
-@Sys.init:RET0
+@Sys.initRET0
 D=A
 @SP
 A=M
 M=D
 @SP
 M=M+1
-// store LCL ARG THIS THAT
 @LCL
 D=M
 @SP
@@ -39,25 +37,18 @@ A=M
 M=D
 @SP
 M=M+1
-// reposition LCL
 @SP
 D=M
 @LCL
 M=D
-// reposition ARG (n=number of args)
 @5
 D=D-A
 @ARG
 M=D
-// function call preparation done, ready to jump
 @Sys.init
 0;JMP
-// create the returning point
-(Sys.init:RET0)
-// //// Processing Main.vm
-// Translate command: function Main.fibonacci 0
+(Sys.initRET0)
 (Main.fibonacci)
-// Translate command: push argument 0
 @ARG
 D=M
 @0
@@ -68,7 +59,6 @@ A=M
 M=D
 @SP
 M=M+1
-// Translate command: push constant 2
 @2
 D=A
 @SP
@@ -76,7 +66,6 @@ A=M
 M=D
 @SP
 M=M+1
-// Translate command: lt                     
 @SP
 M=M-1
 @SP
@@ -101,7 +90,6 @@ M=-1
 (BOOL_END_0)
 @SP
 M=M+1
-// Translate command: if-goto IF_TRUE
 @SP
 M=M-1
 @SP
@@ -109,12 +97,9 @@ A=M
 D=M
 @IF_TRUE
 D;JNE
-// Translate command: goto IF_FALSE
 @IF_FALSE
 0;JMP
-// Translate command: label IF_TRUE          
 (IF_TRUE)
-// Translate command: push argument 0
 @ARG
 D=M
 @0
@@ -125,12 +110,10 @@ A=M
 M=D
 @SP
 M=M+1
-// Translate command: return
 @LCL
 D=M
 @R13
 M=D
-// RET = *(FRAME-5)
 @R13
 D=M
 @5
@@ -139,7 +122,6 @@ A=D
 D=M
 @R14
 M=D
-// *ARG = pop
 @SP
 M=M-1
 @SP
@@ -184,13 +166,10 @@ A=D
 D=M
 @LCL
 M=D
-// goto RET
 @R14
 A=M
 0;JMP
-// Translate command: label IF_FALSE         
 (IF_FALSE)
-// Translate command: push argument 0
 @ARG
 D=M
 @0
@@ -201,7 +180,6 @@ A=M
 M=D
 @SP
 M=M+1
-// Translate command: push constant 2
 @2
 D=A
 @SP
@@ -209,7 +187,6 @@ A=M
 M=D
 @SP
 M=M+1
-// Translate command: sub
 @SP
 M=M-1
 @SP
@@ -222,16 +199,13 @@ A=M
 M=M-D
 @SP
 M=M+1
-// Translate command: call Main.fibonacci 1  
-// push return address
-@Main.fibonacci:RET1
+@Main.fibonacciRET1
 D=A
 @SP
 A=M
 M=D
 @SP
 M=M+1
-// store LCL ARG THIS THAT
 @LCL
 D=M
 @SP
@@ -260,22 +234,17 @@ A=M
 M=D
 @SP
 M=M+1
-// reposition LCL
 @SP
 D=M
 @LCL
 M=D
-// reposition ARG (n=number of args)
 @6
 D=D-A
 @ARG
 M=D
-// function call preparation done, ready to jump
 @Main.fibonacci
 0;JMP
-// create the returning point
-(Main.fibonacci:RET1)
-// Translate command: push argument 0
+(Main.fibonacciRET1)
 @ARG
 D=M
 @0
@@ -286,7 +255,6 @@ A=M
 M=D
 @SP
 M=M+1
-// Translate command: push constant 1
 @1
 D=A
 @SP
@@ -294,7 +262,6 @@ A=M
 M=D
 @SP
 M=M+1
-// Translate command: sub
 @SP
 M=M-1
 @SP
@@ -307,16 +274,13 @@ A=M
 M=M-D
 @SP
 M=M+1
-// Translate command: call Main.fibonacci 1  
-// push return address
-@Main.fibonacci:RET2
+@Main.fibonacciRET2
 D=A
 @SP
 A=M
 M=D
 @SP
 M=M+1
-// store LCL ARG THIS THAT
 @LCL
 D=M
 @SP
@@ -345,22 +309,17 @@ A=M
 M=D
 @SP
 M=M+1
-// reposition LCL
 @SP
 D=M
 @LCL
 M=D
-// reposition ARG (n=number of args)
 @6
 D=D-A
 @ARG
 M=D
-// function call preparation done, ready to jump
 @Main.fibonacci
 0;JMP
-// create the returning point
-(Main.fibonacci:RET2)
-// Translate command: add                    
+(Main.fibonacciRET2)
 @SP
 M=M-1
 @SP
@@ -373,12 +332,10 @@ A=M
 M=M+D
 @SP
 M=M+1
-// Translate command: return
 @LCL
 D=M
 @R13
 M=D
-// RET = *(FRAME-5)
 @R13
 D=M
 @5
@@ -387,7 +344,6 @@ A=D
 D=M
 @R14
 M=D
-// *ARG = pop
 @SP
 M=M-1
 @SP
@@ -432,14 +388,10 @@ A=D
 D=M
 @LCL
 M=D
-// goto RET
 @R14
 A=M
 0;JMP
-// //// Processing Sys.vm
-// Translate command: function Sys.init 0
 (Sys.init)
-// Translate command: push constant 4
 @4
 D=A
 @SP
@@ -447,16 +399,13 @@ A=M
 M=D
 @SP
 M=M+1
-// Translate command: call Main.fibonacci 1   
-// push return address
-@Main.fibonacci:RET3
+@Main.fibonacciRET3
 D=A
 @SP
 A=M
 M=D
 @SP
 M=M+1
-// store LCL ARG THIS THAT
 @LCL
 D=M
 @SP
@@ -485,23 +434,17 @@ A=M
 M=D
 @SP
 M=M+1
-// reposition LCL
 @SP
 D=M
 @LCL
 M=D
-// reposition ARG (n=number of args)
 @6
 D=D-A
 @ARG
 M=D
-// function call preparation done, ready to jump
 @Main.fibonacci
 0;JMP
-// create the returning point
-(Main.fibonacci:RET3)
-// Translate command: label WHILE
+(Main.fibonacciRET3)
 (WHILE)
-// Translate command: goto WHILE              
 @WHILE
 0;JMP

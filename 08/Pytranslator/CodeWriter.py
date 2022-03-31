@@ -1,7 +1,7 @@
 import traceback
 
 arithmetic_type = ['add', 'sub', 'neg', 'eq', 'gt', 'lt', 'and', 'or', 'not']
-
+DEBUG = False
 class CodeWriter(object):
     def __init__(self, output_file):
         self.asm_name = output_file 
@@ -197,7 +197,8 @@ class CodeWriter(object):
         self.asm.write(command+"\r\n")
 
     def write_comments(self,comments):
-        self.write("// "+comments)
+        if DEBUG:
+            self.write("// "+comments)
 
     def write_init(self):
         """
@@ -205,6 +206,7 @@ class CodeWriter(object):
         SP=256
         call Sys.init
         """
+        self.write_comments("bootstrap code")
         self.write("@256")
         self.write("D=A")
         self.write("@SP")
@@ -216,13 +218,20 @@ class CodeWriter(object):
         (LABEL)
         对于函数内的label，必须要以functionName:label的方式保证唯一性
         """
-        self.write("({label})".format(label=label))
+        if self.ns_function:
+            self.write("({ns}:{label})".format(ns=self.ns_function,label=label))
+        else:
+            self.write("({label})".format(label=label))
 
     def write_goto(self,label: str):
         """
         无条件跳转
         """
-        self.write('@{label}'.format(label=label))
+        if self.ns_function:
+            self.write('@{ns}:{label}'.format(ns=self.ns_function,label=label))
+        else:
+            self.write('@{label}'.format(label=label))
+            
         self.write('0;JMP')
 
     def write_if(self,label: str):
@@ -231,17 +240,21 @@ class CodeWriter(object):
         该元素是前面的比较运算压入的结果
         """
         self.write_pop_from_stack()
+        # self.write_label(label)
         self.write('@{label}'.format(label=label))
         self.write('D;JNE')#False = 0，因此必须使用JNE判断是否跳转
     
     def set_function_namespace(self,function_name):
-        self.ns_file = function_name 
-        
+        return 
+        self.write_comments("namespace changes to {}".format(function_name))
+        self.ns_function= function_name 
+
     def write_function(self,function_name:str,num_locals:int):
         """
         函数定义并初始化局部变量
         每个函数都需要创建一个 (functionName) 符号表示其入口
         """
+        self.write_comments("define function {}".format(function_name))
         self.write('({function_name})'.format(function_name=function_name))
         self.set_function_namespace(function_name)
         # 在栈上创建 n 个局部变量
@@ -254,7 +267,7 @@ class CodeWriter(object):
     
     def write_call(self,function_name: str,num_args:int):
         # return_label = self.create_retrun_lable(function_name)
-        return_label = function_name + ":RET" + str(self.call_label_index)
+        return_label = function_name + "RET" + str(self.call_label_index)
         self.call_label_index+=1
         # push return-address
         self.write_comments("push return address")
@@ -289,28 +302,29 @@ class CodeWriter(object):
 
         # (return_address)
         self.write_comments("create the returning point")
+
         self.write('({return_label})'.format(return_label=return_label))
 
     def write_return(self):
         
-        _frame = "R13"
-        _return = "R14" 
+        # R13 for FRAME
+        # R14 fro RETURN
 
         # FRAME = LCL
         self.write('@LCL')
         self.write('D=M')
-        self.write('@' + _frame)
+        self.write('@R13')
         self.write('M=D')
 
         # RET = *(FRAME-5)
         self.write_comments("RET = *(FRAME-5)")
-        self.write('@' + _frame)
+        self.write('@R13')
         self.write('D=M') # Save start of frame
         self.write('@5')
         self.write('D=D-A') # Adjust address
         self.write('A=D') # Prepare to load value at address
         self.write('D=M') # Store value
-        self.write('@' + _return)
+        self.write('@R14')
         self.write('M=D') # Save value
 
         # *ARG = pop
@@ -332,7 +346,7 @@ class CodeWriter(object):
         # LCL = *(FRAME-4)
         offset = 1
         for address in ['@THAT', '@THIS', '@ARG', '@LCL']:
-            self.write('@' + _frame)
+            self.write('@R13' )
             self.write('D=M') # Save start of frame
             self.write('@' + str(offset))
             self.write('D=D-A') # Adjust address
@@ -345,6 +359,8 @@ class CodeWriter(object):
 
         # goto RET
         self.write_comments("goto RET")
-        self.write('@' + _return)
+        self.write('@R14' )
         self.write('A=M')
         self.write('0;JMP')
+
+        # self.set_function_namespace(None)
