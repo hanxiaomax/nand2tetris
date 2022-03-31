@@ -8,7 +8,14 @@ from CodeWriter import CodeWriter
 ###
 def collect_files(path):
     return [ os.path.join(path,file) for file in os.listdir(path) if file.endswith(".vm")]
-    
+
+def call_bootstrap(vmfiles):
+    for vmfile in vmfiles:
+        vmfilename = vmfile.split("/")[-1]
+        if vmfilename == "Sys.vm":
+            print("\nFind Sys.vm, Bootstrap code called .......")
+            code_writer.write_init()
+
 
 if __name__ == "__main__":
     basedir = sys.argv[1]
@@ -18,6 +25,7 @@ if __name__ == "__main__":
     print("Target file: ",asmfile)
 
     with CodeWriter(asmfile) as code_writer:
+        call_bootstrap(vmfiles)
         for vmfile in vmfiles:
             translator = Translator(vmfile)
             vmfilename = vmfile.split("/")[-1].split(".")[0]

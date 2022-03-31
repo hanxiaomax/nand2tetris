@@ -1,7 +1,7 @@
 import traceback
 
 arithmetic_type = ['add', 'sub', 'neg', 'eq', 'gt', 'lt', 'and', 'or', 'not']
-DEBUG = False
+DEBUG = True
 class CodeWriter(object):
     def __init__(self, output_file):
         self.asm_name = output_file 
@@ -24,7 +24,7 @@ class CodeWriter(object):
     def __enter__(self):
         print("Open file ",self.asm_name)
         self.asm = open(self.asm_name,'w')
-        self.write_init() # call sys.init if exists
+        
         return self
 
     def __exit__(self,exc_type,exc_val,exc_tb):
@@ -251,7 +251,7 @@ class CodeWriter(object):
         self.write('D;JNE')#False = 0，因此必须使用JNE判断是否跳转
     
     def set_function_namespace(self,function_name):
-        # return 
+        return 
         self.write_comments("namespace changes to {}".format(function_name))
         self.ns_function= function_name 
 

@@ -1,7 +1,53 @@
-// //// Processing None.vm
-// File namespace changes to SimpleFunction
-// Translate command: function SimpleFunction.test 2
-// define function SimpleFunction.test
+@256
+D=A
+@SP
+M=D
+@Sys.initRET0
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@LCL
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@ARG
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@THIS
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@THAT
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@SP
+D=M
+@LCL
+M=D
+@5
+D=D-A
+@ARG
+M=D
+@Sys.init
+0;JMP
+(Sys.initRET0)
 (SimpleFunction.test)
 @0
 D=A
@@ -17,7 +63,6 @@ A=M
 M=D
 @SP
 M=M+1
-// Translate command: push local 0
 @LCL
 D=M
 @0
@@ -28,7 +73,6 @@ A=M
 M=D
 @SP
 M=M+1
-// Translate command: push local 1
 @LCL
 D=M
 @1
@@ -39,7 +83,6 @@ A=M
 M=D
 @SP
 M=M+1
-// Translate command: add
 @SP
 M=M-1
 @SP
@@ -52,7 +95,6 @@ A=M
 M=M+D
 @SP
 M=M+1
-// Translate command: not
 @SP
 M=M-1
 @SP
@@ -60,7 +102,6 @@ A=M
 M=!M
 @SP
 M=M+1
-// Translate command: push argument 0
 @ARG
 D=M
 @0
@@ -71,7 +112,6 @@ A=M
 M=D
 @SP
 M=M+1
-// Translate command: add
 @SP
 M=M-1
 @SP
@@ -84,7 +124,6 @@ A=M
 M=M+D
 @SP
 M=M+1
-// Translate command: push argument 1
 @ARG
 D=M
 @1
@@ -95,7 +134,6 @@ A=M
 M=D
 @SP
 M=M+1
-// Translate command: sub
 @SP
 M=M-1
 @SP
@@ -108,12 +146,10 @@ A=M
 M=M-D
 @SP
 M=M+1
-// Translate command: return
 @LCL
 D=M
 @R13
 M=D
-// RET = *(FRAME-5)
 @R13
 D=M
 @5
@@ -122,7 +158,6 @@ A=D
 D=M
 @R14
 M=D
-// *ARG = pop
 @SP
 M=M-1
 @SP
@@ -167,7 +202,6 @@ A=D
 D=M
 @LCL
 M=D
-// goto RET
 @R14
 A=M
 0;JMP

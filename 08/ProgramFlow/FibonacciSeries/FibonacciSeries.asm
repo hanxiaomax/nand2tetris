@@ -1,3 +1,5 @@
+// //// Processing None.vm
+// File namespace changes to FibonacciSeries
 // Translate command: push argument 1
 @ARG
 D=M
