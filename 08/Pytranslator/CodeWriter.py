@@ -234,12 +234,16 @@ class CodeWriter(object):
         self.write('@{label}'.format(label=label))
         self.write('D;JNE')#False = 0，因此必须使用JNE判断是否跳转
     
+    def set_function_namespace(self,function_name):
+        self.ns_file = function_name 
+        
     def write_function(self,function_name:str,num_locals:int):
         """
         函数定义并初始化局部变量
         每个函数都需要创建一个 (functionName) 符号表示其入口
         """
         self.write('({function_name})'.format(function_name=function_name))
+        self.set_function_namespace(function_name)
         # 在栈上创建 n 个局部变量
         for i in range(num_locals): 
             # push constant 0 
@@ -250,20 +254,22 @@ class CodeWriter(object):
     
     def write_call(self,function_name: str,num_args:int):
         # return_label = self.create_retrun_lable(function_name)
-        return_label = function_name + "RET" + str(self.call_label_index)
+        return_label = function_name + ":RET" + str(self.call_label_index)
         self.call_label_index+=1
         # push return-address
+        self.write_comments("push return address")
         self.write('@' + return_label)
         self.write('D=A')
         self.write_push_to_stack()
-         
+        
+        self.write_comments("store LCL ARG THIS THAT")
         for address in ['@LCL', '@ARG', '@THIS', '@THAT']:
             self.write(address)
             self.write('D=M')
             self.write_push_to_stack()
         
         
-
+        self.write_comments("reposition LCL")
         #reposition LCL
         self.write('@SP')
         self.write('D=M')
@@ -271,16 +277,18 @@ class CodeWriter(object):
         self.write('M=D')
 
         # ARG = SP-n-5
+        self.write_comments("reposition ARG (n=number of args)")
         self.write('@' + str(num_args + 5))
         self.write('D=D-A')
         self.write('@ARG')
         self.write('M=D')
         
-
+        self.write_comments("function call preparation done, ready to jump")
         self.write('@' + function_name)
         self.write('0;JMP')
 
         # (return_address)
+        self.write_comments("create the returning point")
         self.write('({return_label})'.format(return_label=return_label))
 
     def write_return(self):

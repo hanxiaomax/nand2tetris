@@ -2,13 +2,15 @@
 D=A
 @SP
 M=D
-@Sys.initRET0
+// push return address
+@Sys.init:RET0
 D=A
 @SP
 A=M
 M=D
 @SP
 M=M+1
+// store LCL ARG THIS THAT
 @LCL
 D=M
 @SP
@@ -37,17 +39,21 @@ A=M
 M=D
 @SP
 M=M+1
+// reposition LCL
 @SP
 D=M
 @LCL
 M=D
+// reposition ARG (n=number of args)
 @5
 D=D-A
 @ARG
 M=D
+// function call preparation done, ready to jump
 @Sys.init
 0;JMP
-(Sys.initRET0)
+// create the returning point
+(Sys.init:RET0)
 // //// Processing Main.vm
 // Translate command: function Main.fibonacci 0
 (Main.fibonacci)
@@ -217,13 +223,15 @@ M=M-D
 @SP
 M=M+1
 // Translate command: call Main.fibonacci 1  
-@Main.fibonacciRET1
+// push return address
+@Main.fibonacci:RET1
 D=A
 @SP
 A=M
 M=D
 @SP
 M=M+1
+// store LCL ARG THIS THAT
 @LCL
 D=M
 @SP
@@ -252,17 +260,21 @@ A=M
 M=D
 @SP
 M=M+1
+// reposition LCL
 @SP
 D=M
 @LCL
 M=D
+// reposition ARG (n=number of args)
 @6
 D=D-A
 @ARG
 M=D
+// function call preparation done, ready to jump
 @Main.fibonacci
 0;JMP
-(Main.fibonacciRET1)
+// create the returning point
+(Main.fibonacci:RET1)
 // Translate command: push argument 0
 @ARG
 D=M
@@ -296,13 +308,15 @@ M=M-D
 @SP
 M=M+1
 // Translate command: call Main.fibonacci 1  
-@Main.fibonacciRET2
+// push return address
+@Main.fibonacci:RET2
 D=A
 @SP
 A=M
 M=D
 @SP
 M=M+1
+// store LCL ARG THIS THAT
 @LCL
 D=M
 @SP
@@ -331,17 +345,21 @@ A=M
 M=D
 @SP
 M=M+1
+// reposition LCL
 @SP
 D=M
 @LCL
 M=D
+// reposition ARG (n=number of args)
 @6
 D=D-A
 @ARG
 M=D
+// function call preparation done, ready to jump
 @Main.fibonacci
 0;JMP
-(Main.fibonacciRET2)
+// create the returning point
+(Main.fibonacci:RET2)
 // Translate command: add                    
 @SP
 M=M-1
@@ -430,13 +448,15 @@ M=D
 @SP
 M=M+1
 // Translate command: call Main.fibonacci 1   
-@Main.fibonacciRET3
+// push return address
+@Main.fibonacci:RET3
 D=A
 @SP
 A=M
 M=D
 @SP
 M=M+1
+// store LCL ARG THIS THAT
 @LCL
 D=M
 @SP
@@ -465,17 +485,21 @@ A=M
 M=D
 @SP
 M=M+1
+// reposition LCL
 @SP
 D=M
 @LCL
 M=D
+// reposition ARG (n=number of args)
 @6
 D=D-A
 @ARG
 M=D
+// function call preparation done, ready to jump
 @Main.fibonacci
 0;JMP
-(Main.fibonacciRET3)
+// create the returning point
+(Main.fibonacci:RET3)
 // Translate command: label WHILE
 (WHILE)
 // Translate command: goto WHILE              

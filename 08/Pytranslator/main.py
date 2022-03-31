@@ -4,7 +4,7 @@ from Translator import Translator
 from CodeWriter import CodeWriter
 
 ###
-# 目录下所有的vm文件都要处理并生成一个以目录命名的asm文件
+# 目录下所有的vm文件都要处理并生成一个以目录命名的asm文件，但是处理的顺序没有关系
 ###
 def collect_files(path):
     return [ os.path.join(path,file) for file in os.listdir(path) if file.endswith(".vm")]
