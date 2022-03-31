@@ -37,6 +37,7 @@ class CodeWriter(object):
 
     def set_current_vmfile(self,ns_file):
         self.ns_file = ns_file
+        self.write_comments("//// Processing {}.vm".format(self.ns_file))
 
 
     def write_arithmetic(self,command):
@@ -215,13 +216,13 @@ class CodeWriter(object):
         (LABEL)
         对于函数内的label，必须要以functionName:label的方式保证唯一性
         """
-        self.write("({vmfile}${label})".format(vmfile = self.ns_file,label=label))
+        self.write("({label})".format(label=label))
 
     def write_goto(self,label: str):
         """
         无条件跳转
         """
-        self.write('@{vmfile}${label}'.format(vmfile = self.ns_file,label=label))
+        self.write('@{label}'.format(label=label))
         self.write('0;JMP')
 
     def write_if(self,label: str):
@@ -230,7 +231,7 @@ class CodeWriter(object):
         该元素是前面的比较运算压入的结果
         """
         self.write_pop_from_stack()
-        self.write('@{vmfile}${label}'.format(vmfile = self.ns_file,label=label))
+        self.write('@{label}'.format(label=label))
         self.write('D;JNE')#False = 0，因此必须使用JNE判断是否跳转
     
     def write_function(self,function_name:str,num_locals:int):
@@ -238,7 +239,7 @@ class CodeWriter(object):
         函数定义并初始化局部变量
         每个函数都需要创建一个 (functionName) 符号表示其入口
         """
-        self.write('({vmfile}${function_name})'.format(vmfile = self.ns_file,function_name=function_name))
+        self.write('({function_name})'.format(function_name=function_name))
         # 在栈上创建 n 个局部变量
         for i in range(num_locals): 
             # push constant 0 

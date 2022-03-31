@@ -25,7 +25,7 @@ class Translator(object):
         return "VM code translator"
 
     def set_codewriter(self,codewriter):
-       self.cw = codewriter
+        self.cw = codewriter
     
     def close(self):
         self.vmfilehandler.close()

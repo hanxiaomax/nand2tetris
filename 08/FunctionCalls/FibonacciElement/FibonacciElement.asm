@@ -48,8 +48,9 @@ M=D
 @Sys.init
 0;JMP
 (Sys.initRET0)
+// //// Processing Main.vm
 // Translate command: function Main.fibonacci 0
-(Main$Main.fibonacci)
+(Main.fibonacci)
 // Translate command: push argument 0
 @ARG
 D=M
@@ -100,13 +101,13 @@ M=M-1
 @SP
 A=M
 D=M
-@Main$IF_TRUE
+@IF_TRUE
 D;JNE
 // Translate command: goto IF_FALSE
-@Main$IF_FALSE
+@IF_FALSE
 0;JMP
 // Translate command: label IF_TRUE          
-(Main$IF_TRUE)
+(IF_TRUE)
 // Translate command: push argument 0
 @ARG
 D=M
@@ -182,7 +183,7 @@ M=D
 A=M
 0;JMP
 // Translate command: label IF_FALSE         
-(Main$IF_FALSE)
+(IF_FALSE)
 // Translate command: push argument 0
 @ARG
 D=M
@@ -417,8 +418,9 @@ M=D
 @R14
 A=M
 0;JMP
+// //// Processing Sys.vm
 // Translate command: function Sys.init 0
-(Sys$Sys.init)
+(Sys.init)
 // Translate command: push constant 4
 @4
 D=A
@@ -475,7 +477,7 @@ M=D
 0;JMP
 (Main.fibonacciRET3)
 // Translate command: label WHILE
-(Sys$WHILE)
+(WHILE)
 // Translate command: goto WHILE              
-@Sys$WHILE
+@WHILE
 0;JMP
