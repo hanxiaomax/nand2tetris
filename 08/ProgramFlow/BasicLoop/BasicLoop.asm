@@ -1,4 +1,4 @@
-// //// Processing None.vm
+// //// Processing BasicLoop.vm
 // File namespace changes to BasicLoop
 // Translate command: push constant 0
 @0

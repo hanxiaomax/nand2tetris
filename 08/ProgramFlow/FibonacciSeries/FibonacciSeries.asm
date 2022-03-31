@@ -1,4 +1,4 @@
-// //// Processing None.vm
+// //// Processing FibonacciSeries.vm
 // File namespace changes to FibonacciSeries
 // Translate command: push argument 1
 @ARG
