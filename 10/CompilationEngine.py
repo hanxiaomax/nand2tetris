@@ -1,9 +1,8 @@
-import os
 import traceback
 
 class CompilationEngine(object):
     def __init__(self,jackfile):
-        self.xmlfile = jackfile.replace(".jack","-my.xml")
+        self.xmlfile = jackfile.replace(".jack","T-my.xml")
         self.indent = 0
         
 
