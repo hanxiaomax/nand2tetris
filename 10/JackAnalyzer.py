@@ -29,8 +29,8 @@ class JackAnalyzer(object):
                 elif tokenizer.token_type() == 'IDENTIFIER':
                     ce.write_token('identifier', token)
                 
-            # for token in tokens:
-            #     print("{: <25}:  {: <30}".format(token[0],token[1]))
+            for token in tokens:
+                print("{: <25}:  {: <30}".format(token[0],token[1]))
 
     def run(self):
         for jackfile in self.jackfiles:
@@ -44,5 +44,4 @@ if __name__ == "__main__":
     basedir = sys.argv[1]
     analyzer  = JackAnalyzer(basedir)
     analyzer.run()
-    
     

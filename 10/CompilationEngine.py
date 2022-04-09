@@ -25,10 +25,10 @@ class CompilationEngine(object):
         return True
 
     def write_token(self,token_type,token):
-        print(token)
         token = token.replace('&', '&amp;')
         token = token.replace('<', '&lt;')
         token = token.replace('>', '&gt;')
+
         self.write(' ' * self.indent + '<' + token_type + '> ')
         self.write(token)
         self.write(' </' + token_type + '>\n')
