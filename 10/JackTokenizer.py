@@ -1,3 +1,4 @@
+from curses import beep
 import re 
 from collections import deque
 
@@ -7,23 +8,24 @@ class JackTokenizer(object):
         self.filename = filename
         self.code_lines = self.read_code()
         self.raw_tokens = self.get_raw_tokens()
-        self.print_code()
-        self.print_raw_tokens()
+        # self.print_code()
+        # self.print_raw_tokens()
         self.lexical_element = LexicalElement()
-        self.token_type = None
+        self._token_type = None
         self.current_token = None
+        self.in_string = False
     
     def print_code(self):
-        print("-"*20)
+        print("-"*30)
         for codeline in self.code_lines:
             print(codeline)
-        print("-"*20)
+        print("-"*30)
 
     def print_raw_tokens(self):
-        print("-"*20)
+        print("-"*30)
         for token in self.raw_tokens:
             print(token)
-        print("-"*20)
+        print("-"*30)
 
     def read_code(self):
         """
@@ -72,12 +74,10 @@ class JackTokenizer(object):
         进行再次切分或重组，返回的结果是一个合法的token
         """
         raw_token = self.raw_tokens.popleft()
-        # keywords 
-        if raw_token in self.lexical_element.keywords():
-            self.token_type = self.lexical_element.keywords.get(raw_token)
+       
         # symbol 
-        elif raw_token[0] in self.lexical_element.symbol(): # 判断第一个元素
-            self.token_type = "SYMBOL"
+        if raw_token[0] in self.lexical_element.symbol: # 判断第一个元素
+            self._token_type = "SYMBOL"
             if len(raw_token)>=2 and raw_token[:2] in ["==",">=","<="]:
                 self.current_token = raw_token[:2]
                 self.recycle_rest(2,raw_token)
@@ -86,56 +86,58 @@ class JackTokenizer(object):
                 self.recycle_rest(1,raw_token)
         # constant int
         elif raw_token[0].isdigit():
-            self.token_type = 'INT_CONSTANT'
+            self._token_type = 'INT_CONSTANT'
             end = re.search(r"\d*",raw_token).end()#search the end pos of a sequence of number
             self.current_token = raw_token[:end]
             self.recycle_rest(end,raw_token)
         elif raw_token[0] == '"':
             # 并非只有")这种情况，实际上可以匹配到左引号
             # 因为xxx.("这种情况的前半部分已经被消耗了
-            self.token_type = "STRING_CONSTANT"
+            self._token_type = "STRING_CONSTANT"
             # 注意，引号不属于字符串
-            end = re.search(r'"\w*"?',raw_token).end()
             # "abcde")
             # "abcd"
             # "abcd 
-            if end == len(raw_token):
-                if raw_token[-1]=='"': #"abcd"
-                    self.current_token = raw_token[1:-1]
-                else: #"abcd
-                    temp_str = raw_token[1:] 
-                    while True: 
-                        next = self.raw_tokens.popleft()
-                        end = re.search(r'\w*"?',raw_token).end()
-                        if end == len(next):
-                            if next[end]!='"':
-                                temp_str+=next
-                                continue
-                            else:
-                                temp_str+=next[:-1]
-                                break
-                        else:
-                            temp_str+=next[:end]
-                            break
-                    self.current_token = temp_str
-                    self.recycle_rest(end,next)
-            else: # "abcde")
-                self.current_token = raw_token[1:end] 
-                self.recycle_rest(end,raw_token)
-        else:
-            pass
+            is_first = True
+            temp_str = ""
+            while True: 
+                if is_first:
+                    raw_token = raw_token[1:]
+                    is_first = False
+                pos = raw_token.find('"')
+                if pos == -1:
+                    temp_str = temp_str + raw_token + " "
+                else:
+                    temp_str = temp_str + raw_token[:pos]
+                    self.recycle_rest(pos+1,raw_token)
+                    break
+                raw_token = self.raw_tokens.popleft()
+            self.current_token = temp_str.strip()
+            
+        else: # keywords  and identifier 以字符串的形式存在，可能会被符号分割而且不方便直接搜索，依次比较比较好
+            self.current_token = raw_token
+            for pos, ele in enumerate(raw_token):
+                if ele in self.lexical_element.symbol:
+                    self.current_token = raw_token[:pos]
+                    self.recycle_rest(pos,raw_token)
+                    break
+            if self.current_token in self.lexical_element.keywords:
+                self._token_type = 'KEYWORD'
+            else:
+                self._token_type = 'IDENTIFIER'
 
         return self.current_token
 
-    def recycle_rest(self,pos,buffer):
+    def recycle_rest(self,pos,buf):
         """
         将剩下的部分（如果有的话）放回到队列中
         """
-        if buffer[pos:] : 
-            self.raw_tokens.appendleft(buffer[pos:])
+        if buf[pos:] : 
+            self.raw_tokens.appendleft(buf[pos:])
 
+    
     def token_type(self):
-        return self.token_type 
+        return self._token_type 
 
     def keyword(self):
         return self.lexical_element.keywords.get(self.current_token) 

@@ -13,12 +13,12 @@ comments test1 failed
 /** 
 comments test2 failed*/
 class Main {
-    function void main() { // main 
+    function void main() { //main 
         var Array a;
         var int length;
         var int i, sum;
 	
-	let length = Keyboard.readInt("HOW MANY NUMBERS? ");
+	let length = Keyboard.readInt("HOW MANY NUMBERS? HAHA");
 	let a = Array.new(length);
 	let i = 0;
 	
