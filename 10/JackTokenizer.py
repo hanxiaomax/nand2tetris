@@ -56,7 +56,6 @@ class JackTokenizer(object):
                 else:#multi line comments content
                     pass
 
-        # print(jack_codes)
         return jack_codes
     
     def get_raw_tokens(self):
