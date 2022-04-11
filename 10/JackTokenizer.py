@@ -125,7 +125,7 @@ class JackTokenizer(object):
             else:
                 self._token_type = 'IDENTIFIER'
 
-        return self.current_token
+        return self.current_token,self._token_type
 
     def recycle_rest(self,pos,buf):
         """
@@ -134,9 +134,9 @@ class JackTokenizer(object):
         if buf[pos:] : 
             self.raw_tokens.appendleft(buf[pos:])
 
-    
     def token_type(self):
         return self._token_type 
+
 
     def keyword(self):
         return self.lexical_element.keywords.get(self.current_token) 
