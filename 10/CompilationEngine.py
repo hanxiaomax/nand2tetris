@@ -239,13 +239,10 @@ class CompilationEngine(object):
             if self.curr_token in EXPR_START_TOKENS : 
                 self.write_terminal_token()
                 self.compile_expression()
-                if self.curr_token != ";":
-                    self.write_terminal_token()
+                self.write_terminal_token()
             elif self.curr_token!=";" :#and self.curr_token not in EXPR_END_TOKENS:
                 self.write_terminal_token() #打印除了结束符之外的其他元素
 
-        self.write_terminal_token()  #结束符 ；
-    
 
     @tagger(tag="ifStatement")
     def compile_if(self):
@@ -348,14 +345,17 @@ class CompilationEngine(object):
         """
         self.get_next()
         self.compile_term()
-
-        while self.curr_token not in EXPR_END_TOKENS:
+        
+        while self.peek_next() in OPERATORS:
             self.get_next()
-            if self.curr_token in OPERATORS  and self.curr_token not in EXPR_END_TOKENS: 
-                self.write_terminal_token() # operator
-                self.get_next()
-                self.compile_term()
-            
+            self.compile_term()
+        # while self.curr_token not in EXPR_END_TOKENS:
+        #     self.get_next()
+        #     if self.curr_token in OPERATORS: 
+        #         self.write_terminal_token() # operator
+        #         self.get_next()
+        #         self.compile_term()
+                
         
 
             
