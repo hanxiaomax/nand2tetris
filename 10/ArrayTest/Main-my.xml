@@ -38,14 +38,21 @@
 <identifier> length </identifier>
 <symbol> = </symbol>
  <expression>
+ <term>
 <identifier> Keyboard </identifier>
+ </term>
+ <term>
 <symbol> . </symbol>
-<identifier> readInt </identifier>
+ </term>
+ <term>
 <symbol> ( </symbol>
-<stringConstant> HOW MANY NUMBERS? HAHA </stringConstant>
-<symbol> ) </symbol>
+ <expressionList>
+ <expression>
  </expression>
+ </expressionList>
 <symbol> ) </symbol>
+ </term>
+ </expression>
 <symbol> ; </symbol>
  </letStatement>
  <letStatement>
@@ -53,14 +60,21 @@
 <identifier> a </identifier>
 <symbol> = </symbol>
  <expression>
+ <term>
 <identifier> Array </identifier>
+ </term>
+ <term>
 <symbol> . </symbol>
-<identifier> new </identifier>
+ </term>
+ <term>
 <symbol> ( </symbol>
-<identifier> length </identifier>
-<symbol> ) </symbol>
+ <expressionList>
+ <expression>
  </expression>
+ </expressionList>
 <symbol> ) </symbol>
+ </term>
+ </expression>
 <symbol> ; </symbol>
  </letStatement>
  <letStatement>
@@ -68,8 +82,9 @@
 <identifier> i </identifier>
 <symbol> = </symbol>
  <expression>
+ <term>
 <integerConstant> 0 </integerConstant>
-<symbol> ; </symbol>
+ </term>
  </expression>
 <symbol> ; </symbol>
  </letStatement>
@@ -77,10 +92,15 @@
 <keyword> while </keyword>
 <symbol> ( </symbol>
  <expression>
+ <term>
 <identifier> i </identifier>
+ </term>
+ <term>
 <symbol> &lt; </symbol>
+ </term>
+ <term>
 <identifier> length </identifier>
-<symbol> ) </symbol>
+ </term>
  </expression>
 <symbol> ) </symbol>
 <symbol> { </symbol>
@@ -90,20 +110,28 @@
 <identifier> a </identifier>
 <symbol> [ </symbol>
  <expression>
+ <term>
 <identifier> i </identifier>
-<symbol> ] </symbol>
+ </term>
  </expression>
 <symbol> ] </symbol>
 <symbol> = </symbol>
  <expression>
+ <term>
 <identifier> Keyboard </identifier>
+ </term>
+ <term>
 <symbol> . </symbol>
-<identifier> readInt </identifier>
+ </term>
+ <term>
 <symbol> ( </symbol>
-<stringConstant> ENTER THE NEXT NUMBER: </stringConstant>
-<symbol> ) </symbol>
+ <expressionList>
+ <expression>
  </expression>
+ </expressionList>
 <symbol> ) </symbol>
+ </term>
+ </expression>
 <symbol> ; </symbol>
  </letStatement>
  <letStatement>
@@ -111,10 +139,13 @@
 <identifier> i </identifier>
 <symbol> = </symbol>
  <expression>
+ <term>
 <identifier> i </identifier>
+ </term>
 <symbol> + </symbol>
+ <term>
 <integerConstant> 1 </integerConstant>
-<symbol> ; </symbol>
+ </term>
  </expression>
 <symbol> ; </symbol>
  </letStatement>
@@ -125,8 +156,9 @@
 <identifier> i </identifier>
 <symbol> = </symbol>
  <expression>
+ <term>
 <integerConstant> 0 </integerConstant>
-<symbol> ; </symbol>
+ </term>
  </expression>
 <symbol> ; </symbol>
  </letStatement>
@@ -135,8 +167,9 @@
 <identifier> sum </identifier>
 <symbol> = </symbol>
  <expression>
+ <term>
 <integerConstant> 0 </integerConstant>
-<symbol> ; </symbol>
+ </term>
  </expression>
 <symbol> ; </symbol>
  </letStatement>
@@ -144,10 +177,15 @@
 <keyword> while </keyword>
 <symbol> ( </symbol>
  <expression>
+ <term>
 <identifier> i </identifier>
+ </term>
+ <term>
 <symbol> &lt; </symbol>
+ </term>
+ <term>
 <identifier> length </identifier>
-<symbol> ) </symbol>
+ </term>
  </expression>
 <symbol> ) </symbol>
 <symbol> { </symbol>
@@ -157,14 +195,23 @@
 <identifier> sum </identifier>
 <symbol> = </symbol>
  <expression>
+ <term>
 <identifier> sum </identifier>
+ </term>
 <symbol> + </symbol>
+ <term>
 <identifier> a </identifier>
+ <expression>
+ <term>
 <symbol> [ </symbol>
+ </term>
+ <term>
 <identifier> i </identifier>
-<symbol> ] </symbol>
+ </term>
  </expression>
 <symbol> ] </symbol>
+ </term>
+ </expression>
 <symbol> ; </symbol>
  </letStatement>
  <letStatement>
@@ -172,10 +219,13 @@
 <identifier> i </identifier>
 <symbol> = </symbol>
  <expression>
+ <term>
 <identifier> i </identifier>
+ </term>
 <symbol> + </symbol>
+ <term>
 <integerConstant> 1 </integerConstant>
-<symbol> ; </symbol>
+ </term>
  </expression>
 <symbol> ; </symbol>
  </letStatement>
@@ -187,10 +237,10 @@
 <symbol> . </symbol>
 <identifier> printString </identifier>
 <symbol> ( </symbol>
+ <expressionList>
  <expression>
-<stringConstant> THE AVERAGE IS: </stringConstant>
-<symbol> ) </symbol>
  </expression>
+ </expressionList>
 <symbol> ) </symbol>
 <symbol> ; </symbol>
  </doStatement>
@@ -200,12 +250,14 @@
 <symbol> . </symbol>
 <identifier> printInt </identifier>
 <symbol> ( </symbol>
+ <expressionList>
  <expression>
-<identifier> sum </identifier>
 <symbol> / </symbol>
+ <term>
 <identifier> length </identifier>
-<symbol> ) </symbol>
+ </term>
  </expression>
+ </expressionList>
 <symbol> ) </symbol>
 <symbol> ; </symbol>
  </doStatement>
@@ -215,16 +267,18 @@
 <symbol> . </symbol>
 <identifier> println </identifier>
 <symbol> ( </symbol>
- <expression>
-<symbol> ) </symbol>
- </expression>
+ <expressionList>
+ </expressionList>
 <symbol> ) </symbol>
 <symbol> ; </symbol>
  </doStatement>
  <returnStatement>
 <keyword> return </keyword>
+<symbol> ; </symbol>
  </returnStatement>
  </statements>
+<symbol> } </symbol>
  </subroutineBody>
  </subroutineDec>
+<symbol> } </symbol>
  </class>

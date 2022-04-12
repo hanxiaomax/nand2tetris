@@ -67,6 +67,12 @@ class JackTokenizer(object):
     def has_more_tokens(self):
         return self.raw_tokens
 
+
+    def lookahead(self):
+        next_token,_ = self.advance()
+        self.raw_tokens.appendleft(next_token)
+        return next_token
+
     def advance(self):
         """
         处理raw_tokens，根据实际情况，
