@@ -49,16 +49,11 @@
 <stringConstant> HOW MANY NUMBERS?  </stringConstant>
  </term>
  </expression>
- <expression>
- <term>
-<symbol> ) </symbol>
- </term>
- </expression>
  </expressionList>
 <symbol> ) </symbol>
  </term>
  </expression>
-<symbol> ) </symbol>
+<symbol> ; </symbol>
  </letStatement>
  <letStatement>
 <keyword> let </keyword>
@@ -76,16 +71,11 @@
 <identifier> length </identifier>
  </term>
  </expression>
- <expression>
- <term>
-<symbol> ) </symbol>
- </term>
- </expression>
  </expressionList>
 <symbol> ) </symbol>
  </term>
  </expression>
-<symbol> ) </symbol>
+<symbol> ; </symbol>
  </letStatement>
  <letStatement>
 <keyword> let </keyword>
@@ -96,7 +86,7 @@
 <integerConstant> 0 </integerConstant>
  </term>
  </expression>
-<integerConstant> 0 </integerConstant>
+<symbol> ; </symbol>
  </letStatement>
  <whileStatement>
 <keyword> while </keyword>
@@ -105,12 +95,11 @@
  <term>
 <identifier> i </identifier>
  </term>
- <term>
 <symbol> &lt; </symbol>
+ <term>
+<identifier> length </identifier>
  </term>
  </expression>
-<symbol> &lt; </symbol>
-<identifier> length </identifier>
 <symbol> ) </symbol>
 <symbol> { </symbol>
  <statements>
@@ -123,7 +112,6 @@
 <identifier> i </identifier>
  </term>
  </expression>
-<identifier> i </identifier>
 <symbol> ] </symbol>
 <symbol> = </symbol>
  <expression>
@@ -138,16 +126,11 @@
 <stringConstant> ENTER THE NEXT NUMBER:  </stringConstant>
  </term>
  </expression>
- <expression>
- <term>
-<symbol> ) </symbol>
- </term>
- </expression>
  </expressionList>
 <symbol> ) </symbol>
  </term>
  </expression>
-<symbol> ) </symbol>
+<symbol> ; </symbol>
  </letStatement>
  <letStatement>
 <keyword> let </keyword>
@@ -157,12 +140,12 @@
  <term>
 <identifier> i </identifier>
  </term>
- <term>
 <symbol> + </symbol>
+ <term>
+<integerConstant> 1 </integerConstant>
  </term>
  </expression>
-<symbol> + </symbol>
-<integerConstant> 1 </integerConstant>
+<symbol> ; </symbol>
  </letStatement>
  </statements>
 <symbol> } </symbol>
@@ -176,7 +159,7 @@
 <integerConstant> 0 </integerConstant>
  </term>
  </expression>
-<integerConstant> 0 </integerConstant>
+<symbol> ; </symbol>
  </letStatement>
  <letStatement>
 <keyword> let </keyword>
@@ -187,7 +170,7 @@
 <integerConstant> 0 </integerConstant>
  </term>
  </expression>
-<integerConstant> 0 </integerConstant>
+<symbol> ; </symbol>
  </letStatement>
  <whileStatement>
 <keyword> while </keyword>
@@ -196,12 +179,11 @@
  <term>
 <identifier> i </identifier>
  </term>
- <term>
 <symbol> &lt; </symbol>
+ <term>
+<identifier> length </identifier>
  </term>
  </expression>
-<symbol> &lt; </symbol>
-<identifier> length </identifier>
 <symbol> ) </symbol>
 <symbol> { </symbol>
  <statements>
@@ -213,11 +195,8 @@
  <term>
 <identifier> sum </identifier>
  </term>
+<symbol> + </symbol>
  <term>
-<symbol> + </symbol>
- </term>
- </expression>
-<symbol> + </symbol>
 <identifier> a </identifier>
 <symbol> [ </symbol>
  <expression>
@@ -225,8 +204,10 @@
 <identifier> i </identifier>
  </term>
  </expression>
-<identifier> i </identifier>
 <symbol> ] </symbol>
+ </term>
+ </expression>
+<symbol> ; </symbol>
  </letStatement>
  <letStatement>
 <keyword> let </keyword>
@@ -236,12 +217,12 @@
  <term>
 <identifier> i </identifier>
  </term>
- <term>
 <symbol> + </symbol>
+ <term>
+<integerConstant> 1 </integerConstant>
  </term>
  </expression>
-<symbol> + </symbol>
-<integerConstant> 1 </integerConstant>
+<symbol> ; </symbol>
  </letStatement>
  </statements>
 <symbol> } </symbol>
@@ -256,11 +237,6 @@
  <expression>
  <term>
 <stringConstant> THE AVERAGE IS:  </stringConstant>
- </term>
- </expression>
- <expression>
- <term>
-<symbol> ) </symbol>
  </term>
  </expression>
  </expressionList>
@@ -278,18 +254,9 @@
  <term>
 <identifier> sum </identifier>
  </term>
- <term>
 <symbol> / </symbol>
- </term>
- </expression>
- <expression>
  <term>
 <identifier> length </identifier>
- </term>
- </expression>
- <expression>
- <term>
-<symbol> ) </symbol>
  </term>
  </expression>
  </expressionList>
