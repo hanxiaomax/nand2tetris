@@ -40,19 +40,20 @@
  <expression>
  <term>
 <identifier> Keyboard </identifier>
- </term>
- <term>
 <symbol> . </symbol>
- </term>
- <term>
+<identifier> readInt </identifier>
 <symbol> ( </symbol>
  <expressionList>
  <expression>
+ <term>
+<stringConstant> HOW MANY NUMBERS?  </stringConstant>
+ </term>
  </expression>
  </expressionList>
 <symbol> ) </symbol>
  </term>
  </expression>
+<symbol> ) </symbol>
 <symbol> ; </symbol>
  </letStatement>
  <letStatement>
@@ -62,19 +63,20 @@
  <expression>
  <term>
 <identifier> Array </identifier>
- </term>
- <term>
 <symbol> . </symbol>
- </term>
- <term>
+<identifier> new </identifier>
 <symbol> ( </symbol>
  <expressionList>
  <expression>
+ <term>
+<identifier> length </identifier>
+ </term>
  </expression>
  </expressionList>
 <symbol> ) </symbol>
  </term>
  </expression>
+<symbol> ) </symbol>
 <symbol> ; </symbol>
  </letStatement>
  <letStatement>
@@ -95,9 +97,7 @@
  <term>
 <identifier> i </identifier>
  </term>
- <term>
 <symbol> &lt; </symbol>
- </term>
  <term>
 <identifier> length </identifier>
  </term>
@@ -119,19 +119,20 @@
  <expression>
  <term>
 <identifier> Keyboard </identifier>
- </term>
- <term>
 <symbol> . </symbol>
- </term>
- <term>
+<identifier> readInt </identifier>
 <symbol> ( </symbol>
  <expressionList>
  <expression>
+ <term>
+<stringConstant> ENTER THE NEXT NUMBER:  </stringConstant>
+ </term>
  </expression>
  </expressionList>
 <symbol> ) </symbol>
  </term>
  </expression>
+<symbol> ) </symbol>
 <symbol> ; </symbol>
  </letStatement>
  <letStatement>
@@ -150,6 +151,7 @@
 <symbol> ; </symbol>
  </letStatement>
  </statements>
+<symbol> } </symbol>
  </whileStatement>
  <letStatement>
 <keyword> let </keyword>
@@ -180,9 +182,7 @@
  <term>
 <identifier> i </identifier>
  </term>
- <term>
 <symbol> &lt; </symbol>
- </term>
  <term>
 <identifier> length </identifier>
  </term>
@@ -201,10 +201,8 @@
 <symbol> + </symbol>
  <term>
 <identifier> a </identifier>
- <expression>
- <term>
 <symbol> [ </symbol>
- </term>
+ <expression>
  <term>
 <identifier> i </identifier>
  </term>
@@ -212,6 +210,7 @@
 <symbol> ] </symbol>
  </term>
  </expression>
+<symbol> ] </symbol>
 <symbol> ; </symbol>
  </letStatement>
  <letStatement>
@@ -230,6 +229,7 @@
 <symbol> ; </symbol>
  </letStatement>
  </statements>
+<symbol> } </symbol>
  </whileStatement>
  <doStatement>
 <keyword> do </keyword>
@@ -239,6 +239,9 @@
 <symbol> ( </symbol>
  <expressionList>
  <expression>
+ <term>
+<stringConstant> THE AVERAGE IS:  </stringConstant>
+ </term>
  </expression>
  </expressionList>
 <symbol> ) </symbol>
@@ -252,6 +255,9 @@
 <symbol> ( </symbol>
  <expressionList>
  <expression>
+ <term>
+<identifier> sum </identifier>
+ </term>
 <symbol> / </symbol>
  <term>
 <identifier> length </identifier>

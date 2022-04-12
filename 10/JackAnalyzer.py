@@ -15,16 +15,18 @@ class JackAnalyzer(object):
         with CompilationEngine(jackfile,"TXML") as ce:
             tokenizer = JackTokenizer(jackfile)
             ce.write('<tokens>\n')
-            while tokenizer.has_more_tokens():
-                ce.curr_token,ce.token_type = tokenizer.advance()
-                print("{: <25}:  {: <30}".format(str(ce.curr_token),str(ce.token_type)))
+            ce.set_tokens(tokenizer.generate_tokens())
+            while ce.has_more_tokens():
+                ce.get_next()
+                # ce.print_tokens()
                 ce.write_terminal_token()
             ce.write('</tokens>')
                 
     def generate_xml(self,jackfile):
         with CompilationEngine(jackfile) as ce:
             tokenizer = JackTokenizer(jackfile)
-            ce.set_tokenizer(tokenizer)
+            ce.set_tokens(tokenizer.generate_tokens())
+            ce.print_tokens()
             ce.compile_class() # 总是从Class Main开始
 
     def run(self):

@@ -1,6 +1,5 @@
-from curses import beep
 import re 
-from collections import deque
+from collections import deque,namedtuple
 
 
 class JackTokenizer(object):
@@ -67,11 +66,15 @@ class JackTokenizer(object):
     def has_more_tokens(self):
         return self.raw_tokens
 
+    def generate_tokens(self):
+        Token = namedtuple("Token",["token","type"])
+        tokens = []
+        while self.has_more_tokens():
+            curr_token,token_type = self.advance()
+            token = Token(curr_token,token_type)
+            tokens.append(token)
+        return tokens
 
-    def lookahead(self):
-        next_token,_ = self.advance()
-        self.raw_tokens.appendleft(next_token)
-        return next_token
 
     def advance(self):
         """
@@ -117,8 +120,8 @@ class JackTokenizer(object):
                     self.recycle_rest(pos+1,raw_token)
                     break
                 raw_token = self.raw_tokens.popleft()
-            self.current_token = temp_str.strip()
-            
+            self.current_token = temp_str
+
         else: # keywords  and identifier 以字符串的形式存在，可能会被符号分割而且不方便直接搜索，依次比较比较好
             self.current_token = raw_token
             for pos, ele in enumerate(raw_token):
@@ -142,7 +145,6 @@ class JackTokenizer(object):
 
     def token_type(self):
         return self._token_type 
-
 
     def keyword(self):
         return self.lexical_element.keywords.get(self.current_token) 

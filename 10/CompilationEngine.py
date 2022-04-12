@@ -1,6 +1,6 @@
 import traceback
 
-TERMINAL_TOKEN_TYPES = ["SYMBOL", "STRING_CONST", "INT_CONST", "IDENTIFIER"]
+TERMINAL_TOKEN_TYPES = ["SYMBOL", "STRING_CONSTANT", "INT_CONSTANT", "IDENTIFIER"]
 TYPE_KEYWORD = [ "boolean", "class", "void", "int" ]
 ## Entry in class
 CLASS_VAR_DEC_TOKENS = [ "static", "field" ]
@@ -25,10 +25,10 @@ OPERATORS = [
         '-',
         '*',
         '/',
-        '&amp;',
+        '&',
         '|',
-        '&lt;',
-        '&gt;',
+        '<',
+        '>',
         '='
     ]
 UNARY_OPERATORS = [ '-', '~' ]
@@ -36,13 +36,28 @@ UNARY_OPERATORS = [ '-', '~' ]
 class CompilationEngine(object):
     def __init__(self,jackfile,type="XML"):
         self.xmlfile = jackfile.replace(".jack","T-my.xml") if type == "TXML" else jackfile.replace(".jack","-my.xml")
-        self.indent = 0
-        self.tokenizer = None
+        self.tokens = None
+        self.index = 0
         self.curr_token = None
         self.token_type = None
     
-    def set_tokenizer(self,tokenizer):
-        self.tokenizer = tokenizer
+    def print_tokens(self):
+        for t in self.tokens:
+            print("{: <25}:  {: <30}".format(t.token,t.type))
+
+    def set_tokens(self,tokens):
+        self.tokens = tokens
+    
+    def has_more_tokens(self):
+        return self.index < len(self.tokens)
+
+    def get_next(self):
+        self.curr_token, self.token_type = self.tokens[self.index]
+        self.index +=1
+    
+    def peek_next(self):
+        next = self.tokens[self.index].token
+        return next
 
     def __enter__(self):
         print("Open file ",self.xmlfile)
@@ -71,7 +86,7 @@ class CompilationEngine(object):
         token = token.replace('<', '&lt;')
         token = token.replace('>', '&gt;')
 
-        self.write(' ' * self.indent + '<' + token_type + '> ')
+        self.write('<' + token_type + '> ')
         self.write(token)
         self.write(' </' + token_type + '>\n')
     
@@ -81,23 +96,19 @@ class CompilationEngine(object):
     def write(self,_xml):
         self.xml.write(_xml)
 
-    def change_indent(self,val):
-        self.indent += val
-
     @tagger(tag="class")
     def compile_class(self):
         """
         'class' className '{' classVarDec* subroutineDec* '}' 
         """
         while self.curr_token!="}":
-            self.curr_token,self.token_type = self.tokenizer.advance() 
+            self.get_next() 
             if self.curr_token in CLASS_VAR_DEC_TOKENS: # classVarDec*
                 self.compile_class_var_dec()
             elif self.curr_token in SUBROUTINE_TOKENS: # 
                 self.compile_subroutineDec()
-            else:
+            elif self.curr_token!="}":
                 self.write_terminal_token()
-
         # 结束符属于本节点
         self.write_terminal_token()# } 
 
@@ -112,26 +123,30 @@ class CompilationEngine(object):
         """
         self.write_terminal_token() #起始符号属于子节点，子节点中写
         while self.curr_token != ";":
-            self.curr_token,self.token_type = self.tokenizer.advance()
+            self.get_next()
             self.write_terminal_token()
             
     @tagger(tag="subroutineDec")
     def compile_subroutineDec(self):
         """
-        'constructor' | 'function' | 'method' 'void' | type subroutineName '('parameterList ')' "{"subroutineBody"}"
-        有两个子节点 parameterlist 和 subroutinebody，结束符为subroutinebody的结束符
+        语法： 'constructor' | 'function' | 'method' 'void' | type subroutineName '('parameterList ')' "{"subroutineBody"}"
+        父节点： subroutineDec
+        子节点： parameterlist / subroutinebody
+        起始："{" 属于本节点
+        终止："}" 属于父节点
         """
         self.write_terminal_token()#起始符号属于子节点，子节点中写
         while self.curr_token != "}":
-            self.curr_token,self.token_type = self.tokenizer.advance()
+            self.get_next()
             if self.curr_token == "(": # parameterlist 起始符号为左括号
-                self.write_terminal_token()
+                self.write_terminal_token() #(
                 self.compile_parameter_list() #parameterlist 的起始和结束括号都属于父节点
-                self.write_terminal_token()
+                self.write_terminal_token() #)
             elif self.curr_token == "{": # subroutinebody 起始符号为大括号
                 self.compile_subroutine_body()
-            else:
+            else:#elif self.curr_token != "}":
                 self.write_terminal_token()
+        # 终止符号属于父节点
     
     @tagger(tag="subroutineBody")
     def compile_subroutine_body(self):
@@ -144,7 +159,7 @@ class CompilationEngine(object):
         """
         self.write_terminal_token() #{
         while self.curr_token != "}":
-            self.curr_token,self.token_type = self.tokenizer.advance()
+            self.get_next()
             if self.curr_token == "var":
                 self.compile_var_dec()
             elif self.curr_token in STATEMENT_TOKENS:
@@ -163,8 +178,8 @@ class CompilationEngine(object):
         终止：")"
         起始符号和终止符号均为括号，但属于父节点，在父节点中写
         """
-        while self.tokenizer.has_more_tokens():
-            self.curr_token,self.token_type = self.tokenizer.advance()
+        while self.has_more_tokens():
+            self.get_next()
             if self.curr_token != ")": #遇到终止符号返回父节点，但是在该节点中写
                 self.write_terminal_token()
             else:
@@ -181,7 +196,7 @@ class CompilationEngine(object):
         """
         self.write_terminal_token()
         while self.curr_token != ";":
-            self.curr_token,self.token_type = self.tokenizer.advance()
+            self.get_next()
             self.write_terminal_token()
     
     @tagger(tag="statements")
@@ -207,10 +222,8 @@ class CompilationEngine(object):
                 self.compile_return()
             else:
                 self.write_terminal_token()
-            self.curr_token,self.token_type = self.tokenizer.advance()
-        
-        
-    
+            self.get_next()
+            
     @tagger(tag="letStatement")
     def compile_let(self):
         """
@@ -220,16 +233,20 @@ class CompilationEngine(object):
         起始： let
         终止：";"
         """
-        self.write_terminal_token()
+        self.write_terminal_token() #let
         while self.curr_token != ";":
-            self.curr_token,self.token_type = self.tokenizer.advance()
+            self.get_next()
             if self.curr_token in EXPR_START_TOKENS : 
                 self.write_terminal_token()
                 self.compile_expression()
-                self.write_terminal_token()
-            else:
-                self.write_terminal_token()
+                if self.curr_token != ";":
+                    self.write_terminal_token()
+            elif self.curr_token!=";" :#and self.curr_token not in EXPR_END_TOKENS:
+                self.write_terminal_token() #打印除了结束符之外的其他元素
+
+        self.write_terminal_token()  #结束符 ；
     
+
     @tagger(tag="ifStatement")
     def compile_if(self):
         """
@@ -241,7 +258,7 @@ class CompilationEngine(object):
         """
         self.write_terminal_token()
         while self.curr_token != "}":
-            self.curr_token,self.token_type = self.tokenizer.advance()
+            self.get_next()
             if self.curr_token in EXPR_START_TOKENS : 
                 self.write_terminal_token()
                 self.compile_expression()
@@ -250,6 +267,8 @@ class CompilationEngine(object):
                 self.compile_statements()
             else:
                 self.write_terminal_token()
+        self.write_terminal_token()
+
 
     @tagger(tag="whileStatement")
     def compile_while(self):
@@ -262,7 +281,7 @@ class CompilationEngine(object):
         """
         self.write_terminal_token()
         while self.curr_token != "}":
-            self.curr_token,self.token_type = self.tokenizer.advance()
+            self.get_next()
             if self.curr_token == "(":
                 self.write_terminal_token()
                 self.compile_expression()
@@ -271,6 +290,7 @@ class CompilationEngine(object):
                 self.compile_statements()
             else:
                 self.write_terminal_token()
+        self.write_terminal_token()
 
     @tagger(tag="doStatement")
     def compile_do(self):
@@ -284,7 +304,7 @@ class CompilationEngine(object):
         self.write_terminal_token()#do
         self.subroutine_call()
         while self.curr_token != ";":
-            self.curr_token,self.token_type = self.tokenizer.advance()
+            self.get_next()
             self.write_terminal_token()
 
     def subroutine_call(self):
@@ -292,13 +312,13 @@ class CompilationEngine(object):
         不是子节点，不需要加tag
         """
         while self.curr_token != ")":
-            self.curr_token,self.token_type = self.tokenizer.advance()
+            self.get_next()
             if self.curr_token == "(": # exprlist的起始符号
                 self.write_terminal_token()
                 self.compile_expression_list()
+            elif self.curr_token!=")":
                 self.write_terminal_token()
-            else:
-                self.write_terminal_token()
+        self.write_terminal_token()
 
     @tagger(tag="returnStatement")
     def compile_return(self):
@@ -310,10 +330,10 @@ class CompilationEngine(object):
         终止：";"
         """
         self.write_terminal_token() #return 
-        if self.tokenizer.lookahead()!= ";": #如果return后面不是分号，则肯定是表达式
+        if self.peek_next()!= ";": #如果return后面不是分号，则肯定是表达式
             self.compile_expression()
         while self.curr_token != ";": 
-            self.curr_token,self.token_type = self.tokenizer.advance() 
+            self.get_next() 
             self.write_terminal_token() 
 
     @tagger(tag="expression")
@@ -322,20 +342,23 @@ class CompilationEngine(object):
         语法：term (op term)*
         父节点： let / if / while / return / term /subroutineCall
         子节点： term
-        起始： EXPR_START_TOKENS = ["[", "(" ,"=", "return"]`
-        终止：EXPR_END_TOKENS = [";", ")", "]"]
+        起始： EXPR_START_TOKENS = ["[", "(" ,"="]`
+        终止： EXPR_END_TOKENS = [";", ")", "]"]
         起始符号和结束符号均属于父节点
         """
-        while self.tokenizer.has_more_tokens():
-            self.curr_token,self.token_type = self.tokenizer.advance()
-            if self.curr_token not in EXPR_END_TOKENS: 
-                if self.curr_token in OPERATORS: 
-                    self.write_terminal_token() # operator
-                else:
-                    self.compile_term()
-            else:
-                return 
-    
+        self.get_next()
+        self.compile_term()
+
+        while self.curr_token not in EXPR_END_TOKENS:
+            self.get_next()
+            if self.curr_token in OPERATORS  and self.curr_token not in EXPR_END_TOKENS: 
+                self.write_terminal_token() # operator
+                self.get_next()
+                self.compile_term()
+            
+        
+
+            
     @tagger(tag="expressionList")
     def compile_expression_list(self):
         """
@@ -348,10 +371,10 @@ class CompilationEngine(object):
         """
         # 在父节点中读到 ( 进入该函数，由于expressionList可能为空，不能默认调用一次expr
         # 读取下一个 token，如果不是终止符号，才调用 expr
-        self.curr_token,self.token_type = self.tokenizer.advance()
+        if self.peek_next() == ")":
+            return 
         while self.curr_token != ")":
-           self.compile_expression()
-        
+            self.compile_expression()
     
     @tagger(tag="term")
     def compile_term(self):
@@ -362,12 +385,18 @@ class CompilationEngine(object):
         varName | 
         varName '[' expression']' | subroutineCall | '(' expression ')' | unaryOp term 
         """
+        
         if self.token_type == "IDENTIFIER" :
-            if self.tokenizer.lookahead() == "[":
+            if self.peek_next() == "[": # expr
+                self.write_terminal_token()
+                self.get_next()
                 self.write_terminal_token()
                 self.compile_expression()
                 self.write_terminal_token()
-            elif self.tokenizer.lookahead() == "(":
+            elif self.peek_next() == "(" or self.peek_next() == ".": #subroutine call
+                self.write_terminal_token()
+                self.get_next()
+                self.write_terminal_token()
                 self.subroutine_call()
             else:
                 self.write_terminal_token()
