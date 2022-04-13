@@ -1,4 +1,3 @@
-from lib2to3.pgen2.tokenize import tokenize
 from JackTokenizer import JackTokenizer
 from CompilationEngine import CompilationEngine
 import sys
@@ -11,23 +10,22 @@ class JackAnalyzer(object):
     def collect_files(self,path):
         return [ os.path.join(path,file) for file in os.listdir(path) if file.endswith(".jack")]
 
+
     def generate_type_xml(self,jackfile):
         with CompilationEngine(jackfile,"TXML") as ce:
             tokenizer = JackTokenizer(jackfile)
-            ce.write('<tokens>\n')
             ce.set_tokens(tokenizer.get_tokens())
-
+            ce.write_tag("tokens")
             while ce.has_more_tokens():
-                ce.get_next()
-                ce.write_terminal_token()
-            ce.write('</tokens>')
+                ce.write_next_token()
+            ce.write_tag("/tokens")
                 
     def generate_xml(self,jackfile):
         with CompilationEngine(jackfile) as ce:
             tokenizer = JackTokenizer(jackfile)
             ce.set_tokens(tokenizer.get_tokens())
             ce.print_tokens()
-            ce.compile_class() # 总是从Class Main开始
+            ce.run() # 总是从Class Main开始
 
     def run(self):
         for jackfile in self.jackfiles:

@@ -26,6 +26,9 @@ class CompilationEngine(object):
     def print_tokens(self):
         for token in self.tokens:
             print(token)
+            
+    def run(self):
+        return self.compile_class()
 
     def set_tokens(self,tokens):
         self.tokens = tokens
@@ -56,7 +59,11 @@ class CompilationEngine(object):
             print(traceback.print_tb(exc_tb))
         return True
 
+    def write_tag(self,tag):
+        self.write("<{tag}>\n".format(tag=tag))
+
     def tagger(func=None,tag=None):
+        "装饰compile_x函数，在其前后自动添加对应的tag"
         def deco(func):
             def wrapper(self, *args, **kwargs):
                 self.write_tag(tag)
@@ -386,10 +393,6 @@ class CompilationEngine(object):
                 self.compile_expression_list()
                 self.write_next_token() # ")"
     
-
-    def write_tag(self,tag):
-            self.write("<{tag}>\n".format(tag=tag))
-
     def write(self,_xml):
         self.xml.write(_xml)
     
