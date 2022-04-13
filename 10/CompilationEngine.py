@@ -38,12 +38,11 @@ class CompilationEngine(object):
         self.xmlfile = jackfile.replace(".jack","T-my.xml") if type == "TXML" else jackfile.replace(".jack","-my.xml")
         self.tokens = None
         self.index = 0
-        self.curr_token = None
-        self.token_type = None
+        self.current = None
     
     def print_tokens(self):
-        for t in self.tokens:
-            print("{: <25}:  {: <30}".format(t.token,t.type))
+        for token in self.tokens:
+            print(token)
 
     def set_tokens(self,tokens):
         self.tokens = tokens
@@ -53,13 +52,17 @@ class CompilationEngine(object):
 
     def get_next(self):
         if self.has_more_tokens():
-            self.curr_token, self.token_type = self.tokens[self.index]
+            self.current = self.tokens[self.index]
             self.index +=1
-    
+
+    def write_next_token(self):
+            self.get_next()
+            self.write_terminal_token()
+
     def peek_next(self):
         if self.has_more_tokens():
-            next = self.tokens[self.index].token
-            return next
+            next_token = self.tokens[self.index]
+            return next_token.name
 
     def __enter__(self):
         print("Open file ",self.xmlfile)
@@ -82,21 +85,8 @@ class CompilationEngine(object):
                 self.write_tag("/"+tag)
             return wrapper
         return deco
-
-    def write_token(self,token,token_type):
-        token = token.replace('&', '&amp;')
-        token = token.replace('<', '&lt;')
-        token = token.replace('>', '&gt;')
-
-        self.write('<' + token_type + '> ')
-        self.write(token)
-        self.write(' </' + token_type + '>\n')
     
-    def write_tag(self,tag):
-        self.write(' <' + tag + '>\n')
 
-    def write(self,_xml):
-        self.xml.write(_xml)
 
     @tagger(tag="class")
     def compile_class(self):
@@ -113,7 +103,6 @@ class CompilationEngine(object):
         while self.peek_next() in SUBROUTINE_TOKENS:  # subroutineDec
             self.compile_subroutineDec()
        
-        self.get_next()
         self.write_next_token() # "}"
 
 
@@ -130,7 +119,7 @@ class CompilationEngine(object):
         self.write_next_token() # type
         self.write_next_token() # varName
         
-        while self.curr_token != ";":
+        while self.peek_next() != ";":
             self.write_next_token()
             
     @tagger(tag="subroutineDec")
@@ -139,7 +128,7 @@ class CompilationEngine(object):
         语法： 'constructor' | 'function' | 'method' 'void' | type subroutineName '('parameterList ')' subroutineBody
         父节点： subroutineDec
         子节点： parameterlist / subroutinebody
-        起始："{" 属于本节点
+        起始："{" 属于父节点
         终止："}" 属于父节点
         """
         self.write_next_token()         # ('constructor' | 'function' | 'method')
@@ -176,9 +165,8 @@ class CompilationEngine(object):
         语法：(( type varName ) ( "," type varName )*)?
         父节点： subroutineDec
         子节点：无子节点
-        起始："("
-        终止：")"
-        起始符号和终止符号均为括号，但属于父节点，在父节点中写
+        起始："(" 属于父节点
+        终止：")" 属于父节点
         """
         if self.peek_next() != ")": # 可能没有参数
             self.write_next_token() # type
@@ -216,7 +204,6 @@ class CompilationEngine(object):
         子节点： let / if / while / do / return 
         起始： STATEMENT_TOKENS
         终止：} 
-        起始符号属于各子节点，所以不再父节点中写。终止符号属于父节点
         """
         
         while self.peek_next() != "}": # ending for statements. for each statement based on thier own
@@ -307,13 +294,13 @@ class CompilationEngine(object):
         self.subroutine_call()
         self.write_next_token() # ;
 
-    def subroutine_call(self,write_identifier=True):
+    def subroutine_call(self):
         """
         subroutineName '(' expressionList ')' | ( className | varName) '.' subroutineName '(' expressionList ')'
         不是子节点，不需要加tag
         """
-        if write_identifier:
-            self.write_next_token() # subroutineName or ( className | varName)
+        
+        self.write_next_token() # subroutineName or ( className | varName)
         if self.peek_next() == "(":
             self.write_next_token() # "("
             self.compile_expression_list()
@@ -387,7 +374,7 @@ class CompilationEngine(object):
         unaryOp term 
         """
         
-        if self.curr_token in UNARY_OPERATORS:  #unaryOp term 
+        if self.peek_next() in UNARY_OPERATORS:  #unaryOp term 
             self.write_next_token() # unaryOP
             self.compile_term() # term
         elif self.peek_next() == "(": #'(' expression ')' 
@@ -410,21 +397,32 @@ class CompilationEngine(object):
                 self.write_next_token() # "("
                 self.compile_expression_list()
                 self.write_next_token() # ")"
-                 
-
-
-    def write_next_token(self):
-        self.get_next()
-        self.write_terminal_token()
     
-    def write_terminal_token(self,):
-        if self.token_type == 'KEYWORD':
-            self.write_token(self.curr_token,'keyword')
-        elif self.token_type == 'SYMBOL':
-            self.write_token(self.curr_token,'symbol')
-        elif self.token_type == 'INT_CONSTANT':
-            self.write_token(str(self.curr_token),'integerConstant')
-        elif self.token_type == 'STRING_CONSTANT':
-            self.write_token(self.curr_token,'stringConstant')
-        elif self.token_type == 'IDENTIFIER':
-            self.write_token(self.curr_token,'identifier')
+
+    def write_tag(self,tag):
+            self.write("<{tag}>\n".format(tag=tag))
+
+    def write(self,_xml):
+        self.xml.write(_xml)
+    
+    def write_terminal_token(self):
+        token = self.current
+        if token.type == 'KEYWORD':
+            self.write_token(token.name,'keyword')
+        elif token.type == 'SYMBOL':
+            self.write_token(token.name,'symbol')
+        elif token.type == 'INT_CONSTANT':
+            self.write_token(str(token.name),'integerConstant')
+        elif token.type == 'STRING_CONSTANT':
+            self.write_token(token.name,'stringConstant')
+        elif token.type == 'IDENTIFIER':
+            self.write_token(token.name,'identifier')
+
+    def write_token(self,token,tag):
+            token = token.replace('&', '&amp;')
+            token = token.replace('<', '&lt;')
+            token = token.replace('>', '&gt;')
+            
+            self.write("<{tag}> {token} </{tag}>\n".format(tag=tag,token=token))
+
+    

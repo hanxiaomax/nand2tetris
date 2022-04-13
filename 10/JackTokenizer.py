@@ -1,30 +1,24 @@
 import re 
 from collections import deque,namedtuple
 
+class Token(object):
+    def __init__(self,_name=None,_type=None):
+        self.name = _name
+        self.type =_type 
+
+    def __str__(self):
+        return "{: <25}:  {: <30}".format(self.name,self.type)
+    
 
 class JackTokenizer(object):
     def __init__(self,filename):
         self.filename = filename
         self.code_lines = self.read_code()
         self.raw_tokens = self.get_raw_tokens()
-        # self.print_code()
-        # self.print_raw_tokens()
         self.lexical_element = LexicalElement()
-        self._token_type = None
-        self.current_token = None
+        self.current_token = Token()
         self.in_string = False
-    
-    def print_code(self):
-        print("-"*30)
-        for codeline in self.code_lines:
-            print(codeline)
-        print("-"*30)
-
-    def print_raw_tokens(self):
-        print("-"*30)
-        for token in self.raw_tokens:
-            print(token)
-        print("-"*30)
+        
 
     def read_code(self):
         """
@@ -63,16 +57,13 @@ class JackTokenizer(object):
             tokens.extend(code_line.split())
         return deque(tokens)
 
-    def has_more_tokens(self):
+    def has_more(self):
         return self.raw_tokens
 
     def generate_tokens(self):
-        Token = namedtuple("Token",["token","type"])
         tokens = []
-        while self.has_more_tokens():
-            curr_token,token_type = self.advance()
-            token = Token(curr_token,token_type)
-            tokens.append(token)
+        while self.has_more():
+            tokens.append(self.advance())
         return tokens
 
 
@@ -82,26 +73,27 @@ class JackTokenizer(object):
         进行再次切分或重组，返回的结果是一个合法的token
         """
         raw_token = self.raw_tokens.popleft()
+        token = Token()
        
         # symbol 
         if raw_token[0] in self.lexical_element.symbol: # 判断第一个元素
-            self._token_type = "SYMBOL"
+            token.type = "SYMBOL"
             if len(raw_token)>=2 and raw_token[:2] in ["==",">=","<="]:
-                self.current_token = raw_token[:2]
+                token.name = raw_token[:2]
                 self.recycle_rest(2,raw_token)
             else:
-                self.current_token = raw_token[0]
+                token.name = raw_token[0]
                 self.recycle_rest(1,raw_token)
         # constant int
         elif raw_token[0].isdigit():
-            self._token_type = 'INT_CONSTANT'
+            token.type = 'INT_CONSTANT'
             end = re.search(r"\d*",raw_token).end()#search the end pos of a sequence of number
-            self.current_token = raw_token[:end]
+            token.name = raw_token[:end]
             self.recycle_rest(end,raw_token)
         elif raw_token[0] == '"':
             # 并非只有")这种情况，实际上可以匹配到左引号
             # 因为xxx.("这种情况的前半部分已经被消耗了
-            self._token_type = "STRING_CONSTANT"
+            token.type = "STRING_CONSTANT"
             # 注意，引号不属于字符串
             # "abcde")
             # "abcd"
@@ -120,21 +112,21 @@ class JackTokenizer(object):
                     self.recycle_rest(pos+1,raw_token)
                     break
                 raw_token = self.raw_tokens.popleft()
-            self.current_token = temp_str
+            token.name = temp_str
 
         else: # keywords  and identifier 以字符串的形式存在，可能会被符号分割而且不方便直接搜索，依次比较比较好
-            self.current_token = raw_token
+            token.name = raw_token
             for pos, ele in enumerate(raw_token):
                 if ele in self.lexical_element.symbol:
-                    self.current_token = raw_token[:pos]
+                    token.name = raw_token[:pos]
                     self.recycle_rest(pos,raw_token)
                     break
-            if self.current_token in self.lexical_element.keywords:
-                self._token_type = 'KEYWORD'
+            if token.name in self.lexical_element.keywords:
+                token.type = 'KEYWORD'
             else:
-                self._token_type = 'IDENTIFIER'
-
-        return self.current_token,self._token_type
+                token.type = 'IDENTIFIER'
+        
+        return token
 
     def recycle_rest(self,pos,buf):
         """
@@ -142,25 +134,6 @@ class JackTokenizer(object):
         """
         if buf[pos:] : 
             self.raw_tokens.appendleft(buf[pos:])
-
-    def token_type(self):
-        return self._token_type 
-
-    def keyword(self):
-        return self.lexical_element.keywords.get(self.current_token) 
-
-    def symbol(self):
-        return self.current_token
-    
-    def identifier(self):
-        return self.current_token
-    
-    def int_val(self):
-        return int(self.current_token)
-
-    def string_val(self):
-        return self.current_token
-
 
 
 class LexicalElement(object):

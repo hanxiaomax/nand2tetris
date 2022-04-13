@@ -18,7 +18,6 @@ class JackAnalyzer(object):
             ce.set_tokens(tokenizer.generate_tokens())
             while ce.has_more_tokens():
                 ce.get_next()
-                # ce.print_tokens()
                 ce.write_terminal_token()
             ce.write('</tokens>')
                 
