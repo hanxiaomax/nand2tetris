@@ -1,25 +1,8 @@
 import traceback
 
-TERMINAL_TOKEN_TYPES = ["SYMBOL", "STRING_CONSTANT", "INT_CONSTANT", "IDENTIFIER"]
-TYPE_KEYWORD = [ "boolean", "class", "void", "int" ]
-## Entry in class
 CLASS_VAR_DEC_TOKENS = [ "static", "field" ]
 SUBROUTINE_TOKENS = [ "function", "method", "constructor" ]
-#####
-
 STATEMENT_TOKENS = [ 'do', 'let', 'while', 'return', 'if' ]
-EXPR_START_TOKENS= [
-                                        "[",
-                                        "(",
-                                        "=",
-                                        ]
-
-EXPR_END_TOKENS = [
-                                            ";",
-                                            ")",
-                                            "]",
-                                            ","
-                                        ]
 OPERATORS = [
         '+',
         '-',
@@ -54,10 +37,6 @@ class CompilationEngine(object):
         if self.has_more_tokens():
             self.current = self.tokens[self.index]
             self.index +=1
-
-    def write_next_token(self):
-            self.get_next()
-            self.write_terminal_token()
 
     def peek_next(self):
         if self.has_more_tokens():
@@ -346,8 +325,6 @@ class CompilationEngine(object):
         语法：term (op term)*
         父节点： let / if / while / return / term /subroutineCall
         子节点： term
-        起始： EXPR_START_TOKENS = ["[", "(" ,"="]`
-        终止： EXPR_END_TOKENS = [";", ")", "]"]
         起始符号和结束符号均属于父节点
         """
         self.compile_term()
@@ -416,7 +393,8 @@ class CompilationEngine(object):
     def write(self,_xml):
         self.xml.write(_xml)
     
-    def write_terminal_token(self):
+    def write_next_token(self):
+        self.get_next()
         token = self.current
         if token.type == 'KEYWORD':
             self.write_token(token.name,'keyword')
