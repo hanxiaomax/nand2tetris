@@ -37,7 +37,7 @@ class JackAnalyzer(object):
 
 if __name__ == "__main__":
 
-    #basedir = "/Users/lingfengai/code/nand2tetris/projects/10/ArrayTest"#sys.argv[1]
+    #basedir = "/Users/lingfengai/code/nand2tetris/projects/10/ExpressionLessSquare/"#sys.argv[1]
     basedir = sys.argv[1]
     analyzer  = JackAnalyzer(basedir)
     analyzer.run()

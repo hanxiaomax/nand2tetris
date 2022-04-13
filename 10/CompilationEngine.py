@@ -119,9 +119,20 @@ class CompilationEngine(object):
         self.write_next_token() # type
         self.write_next_token() # varName
         
-        while self.peek_next() != ";":
-            self.write_next_token()
-            
+        # while self.current.name != ";":
+        #     self.write_next_token()
+        # 两种不同的写法，上面一种判断结束符，只要不是结束就写，不关心写的是什么
+        # 但是必须要使用当前的token来进行判断
+        # 下面的写法，是判断是否还要继续写，如果写的话，每一步都有明确的含义。
+        # 本程序使用了下面这种写法，可读性更好一些，也容易调试。
+        # 即统一使用下一个token，判断是否还要继续处理，明确当前打印的元素属于语法的哪个部分
+        # ？使用if判断，*使用while判断
+        while self.peek_next() == ",": # (',' varName)*
+            self.write_next_token() # ","
+            self.write_next_token() # "varName"
+        
+        self.write_next_token()#;
+
     @tagger(tag="subroutineDec")
     def compile_subroutineDec(self):
         """

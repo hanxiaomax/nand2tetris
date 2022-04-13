@@ -34,6 +34,7 @@ class JackTokenizer(object):
         """
         in_comment = False
         _buffer = deque() # processing buffer
+        print("Tokenizing file",filename)
         with open(filename,"r") as f:
             for line in  f.readlines():
                 line = line.strip().split("//")[0]# ignore inline comments 
