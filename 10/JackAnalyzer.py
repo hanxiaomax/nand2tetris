@@ -15,7 +15,8 @@ class JackAnalyzer(object):
         with CompilationEngine(jackfile,"TXML") as ce:
             tokenizer = JackTokenizer(jackfile)
             ce.write('<tokens>\n')
-            ce.set_tokens(tokenizer.generate_tokens())
+            ce.set_tokens(tokenizer.get_tokens())
+
             while ce.has_more_tokens():
                 ce.get_next()
                 ce.write_terminal_token()
@@ -24,7 +25,7 @@ class JackAnalyzer(object):
     def generate_xml(self,jackfile):
         with CompilationEngine(jackfile) as ce:
             tokenizer = JackTokenizer(jackfile)
-            ce.set_tokens(tokenizer.generate_tokens())
+            ce.set_tokens(tokenizer.get_tokens())
             ce.print_tokens()
             ce.compile_class() # 总是从Class Main开始
 
@@ -36,8 +37,8 @@ class JackAnalyzer(object):
 
 if __name__ == "__main__":
 
-    basedir = "/Users/lingfengai/code/nand2tetris/projects/10/ArrayTest"#sys.argv[1]
-    #basedir = sys.argv[1]
+    #basedir = "/Users/lingfengai/code/nand2tetris/projects/10/ArrayTest"#sys.argv[1]
+    basedir = sys.argv[1]
     analyzer  = JackAnalyzer(basedir)
     analyzer.run()
     
