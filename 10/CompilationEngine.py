@@ -1,3 +1,4 @@
+from textwrap import indent
 import traceback
 
 CLASS_VAR_DEC_TOKENS = [ "static", "field" ]
@@ -22,11 +23,12 @@ class CompilationEngine(object):
         self.tokens = None
         self.index = 0
         self.current = None
+        self.indent = 0
     
     def print_tokens(self):
         for token in self.tokens:
             print(token)
-            
+
     def run(self):
         return self.compile_class()
 
@@ -59,15 +61,16 @@ class CompilationEngine(object):
             print(traceback.print_tb(exc_tb))
         return True
 
-    def write_tag(self,tag):
-        self.write("<{tag}>\n".format(tag=tag))
+
 
     def tagger(func=None,tag=None):
         "装饰compile_x函数，在其前后自动添加对应的tag"
         def deco(func):
             def wrapper(self, *args, **kwargs):
                 self.write_tag(tag)
+                self.increase_indent()
                 func(self)
+                self.decrease_indent()
                 self.write_tag("/"+tag)
             return wrapper
         return deco
@@ -414,7 +417,14 @@ class CompilationEngine(object):
             token = token.replace('&', '&amp;')
             token = token.replace('<', '&lt;')
             token = token.replace('>', '&gt;')
-            
-            self.write("<{tag}> {token} </{tag}>\n".format(tag=tag,token=token))
-
+            self.write("{indent}<{tag}> {token} </{tag}>\n".format(tag=tag,token=token,indent="\t"*self.indent))
     
+    def write_tag(self,tag):
+            self.write("{indent}<{tag}>\n".format(tag=tag,indent="\t"*self.indent))
+            
+
+    def increase_indent(self):
+        self.indent += 1
+    
+    def decrease_indent(self):
+        self.indent -= 1
