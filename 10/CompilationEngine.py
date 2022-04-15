@@ -1,4 +1,4 @@
-from textwrap import indent
+from functools import wraps
 import traceback
 
 CLASS_VAR_DEC_TOKENS = [ "static", "field" ]
@@ -24,13 +24,26 @@ class CompilationEngine(object):
         self.index = 0
         self.current = None
         self.indent = 0
-    
+
+    def __enter__(self):
+        print("Open file ",self.xmlfile)
+        self.xml = open(self.xmlfile,'w')
+        return self
+
+    def __exit__(self,exc_type,exc_val,exc_tb):
+        self.xml.close()
+        print("CompilationEngine exit, close ",self.xmlfile)
+        if exc_val:
+            print("exit:", exc_type, exc_val, exc_tb)
+            print(traceback.print_tb(exc_tb))
+        return True
+
     def print_tokens(self):
         for token in self.tokens:
             print(token)
 
     def run(self):
-        return self.compile_class()
+        return self.compile_class() # class always be the root 
 
     def set_tokens(self,tokens):
         self.tokens = tokens
@@ -48,33 +61,26 @@ class CompilationEngine(object):
             next_token = self.tokens[self.index]
             return next_token.name
 
-    def __enter__(self):
-        print("Open file ",self.xmlfile)
-        self.xml = open(self.xmlfile,'w')
-        return self
-
-    def __exit__(self,exc_type,exc_val,exc_tb):
-        self.xml.close()
-        print("CompilationEngine exit, close ",self.xmlfile)
-        if exc_val:
-            print("exit:", exc_type, exc_val, exc_tb)
-            print(traceback.print_tb(exc_tb))
-        return True
-
-
-
-    def tagger(func=None,tag=None):
-        "装饰compile_x函数，在其前后自动添加对应的tag"
+    def tagger(tag=None): 
+        """
+        装饰compile_x函数，在其前后自动添加对应的tag
+        定义接收参数的装饰器 tagge 接收tag参数并返回一个接收func参数的deco，
+        然后func通过deco传递进wrapper进行包装，被包装的函数会传入self
+        # func = tagger(tag="class")(func(self))
+        https://python3-cookbook.readthedocs.io/zh_CN/latest/c09/p04_define_decorator_that_takes_arguments.html
+        """
         def deco(func):
+            @wraps(func) #确保函数名正确
             def wrapper(self, *args, **kwargs):
-                self.write_tag(tag)
+                self.write_non_terminal_tag(tag)
                 self.increase_indent()
-                func(self)
+                func(self, *args, **kwargs)
                 self.decrease_indent()
-                self.write_tag("/"+tag)
+                self.write_non_terminal_tag("/"+tag)
             return wrapper
         return deco
     
+   
 
 
     @tagger(tag="class")
@@ -345,12 +351,7 @@ class CompilationEngine(object):
     @tagger(tag="expressionList")
     def compile_expression_list(self):
         """
-        语法：(expression (',' expression)* )? 
-        父节点： do / term
-        子节点： expr
-        起始： (
-        终止：)
-        起始和终止符号都属于父节点
+        (expression (',' expression)* )? 
         """
         # 在父节点中读到 ( 进入该函数，由于expressionList可能为空，不能默认调用一次expr
         # 读取下一个 token，如果不是终止符号，才调用 expr
@@ -403,24 +404,34 @@ class CompilationEngine(object):
         self.get_next()
         token = self.current
         if token.type == 'KEYWORD':
-            self.write_token(token.name,'keyword')
+            self.write_terminal_tag(token.name,'keyword')
         elif token.type == 'SYMBOL':
-            self.write_token(token.name,'symbol')
+            self.write_terminal_tag(token.name,'symbol')
         elif token.type == 'INT_CONSTANT':
-            self.write_token(str(token.name),'integerConstant')
+            self.write_terminal_tag(token.name,'integerConstant')
         elif token.type == 'STRING_CONSTANT':
-            self.write_token(token.name,'stringConstant')
+            self.write_terminal_tag(token.name,'stringConstant')
         elif token.type == 'IDENTIFIER':
-            self.write_token(token.name,'identifier')
+            self.write_terminal_tag(token.name,'identifier')
 
-    def write_token(self,token,tag):
-            token = token.replace('&', '&amp;')
-            token = token.replace('<', '&lt;')
-            token = token.replace('>', '&gt;')
-            self.write("{indent}<{tag}> {token} </{tag}>\n".format(tag=tag,token=token,indent="\t"*self.indent))
+    def write_terminal_tag(self,token,tag):
+        """
+        <keyword>class</keyword>
+        """
+        token = token.replace('&', '&amp;')
+        token = token.replace('<', '&lt;')
+        token = token.replace('>', '&gt;')
+        self.write("{indent}<{tag}> {token} </{tag}>\n".format(tag=tag,
+                                                                                                    token=token,
+                                                                                                    indent="\t"*self.indent))
     
-    def write_tag(self,tag):
-            self.write("{indent}<{tag}>\n".format(tag=tag,indent="\t"*self.indent))
+    def write_non_terminal_tag(self,tag):
+        """
+        <class>
+        or 
+        </class>
+        """
+        self.write("{indent}<{tag}>\n".format(tag=tag,indent="\t"*self.indent))
             
 
     def increase_indent(self):

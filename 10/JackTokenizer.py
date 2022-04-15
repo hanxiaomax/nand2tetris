@@ -3,7 +3,7 @@ from collections import deque
 
 class Token(object):
     def __init__(self,_name=None,_type=None):
-        self.name = _name
+        self.name = str(_name)
         self.type =_type 
 
     def __str__(self):
