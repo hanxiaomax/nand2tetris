@@ -24,18 +24,18 @@ class JackAnalyzer(object):
         with CompilationEngine(jackfile) as ce:
             tokenizer = JackTokenizer(jackfile)
             ce.set_tokens(tokenizer.get_tokens())
-            ce.print_tokens()
+            # ce.print_tokens()
             ce.run() # 总是从Class Main开始
 
     def run(self):
         for jackfile in self.jackfiles:
             print("="*40 + "\n" + jackfile +"\n" +"="*40)
-            self.generate_type_xml(jackfile)
+            # self.generate_type_xml(jackfile)
             self.generate_xml(jackfile)
 
 if __name__ == "__main__":
 
-    #basedir = "/Users/lingfengai/code/nand2tetris/projects/10/ExpressionLessSquare/"#sys.argv[1]
+    #basedir = "/Users/lingfengai/code/nand2tetris/projects/11/Average/"#sys.argv[1]
     basedir = sys.argv[1]
     analyzer  = JackAnalyzer(basedir)
     analyzer.run()

@@ -1,5 +1,6 @@
 from functools import wraps
 import traceback
+from SymbolTable import SymbolTable
 
 CLASS_VAR_DEC_TOKENS = [ "static", "field" ]
 SUBROUTINE_TOKENS = [ "function", "method", "constructor" ]
@@ -24,6 +25,8 @@ class CompilationEngine(object):
         self.index = 0
         self.current = None
         self.indent = 0
+        self.symbol_table = SymbolTable(jackfile.replace(".jack",".symbol"))
+        self.class_name = None
 
     def __enter__(self):
         print("Open file ",self.xmlfile)
@@ -32,6 +35,7 @@ class CompilationEngine(object):
 
     def __exit__(self,exc_type,exc_val,exc_tb):
         self.xml.close()
+        self.symbol_table.close()
         print("CompilationEngine exit, close ",self.xmlfile)
         if exc_val:
             print("exit:", exc_type, exc_val, exc_tb)
@@ -89,7 +93,8 @@ class CompilationEngine(object):
         'class' className '{' classVarDec* subroutineDec* '}' 
         """
         self.write_next_token() # class
-        self.write_next_token() # className
+        class_name_token = self.write_next_token() # className
+        self.class_name = class_name_token.name
         self.write_next_token() # "{"
 
         while self.peek_next() in CLASS_VAR_DEC_TOKENS: # classVarDec*
@@ -110,10 +115,12 @@ class CompilationEngine(object):
         起始： CLASS_VAR_DEC_TOKENS
         终止：";"
         """
-        self.write_next_token() # 'static' | 'field' 
-        self.write_next_token() # type
-        self.write_next_token() # varName
+        kind_token = self.write_next_token() # 'static' | 'field' 
+        type_token = self.write_next_token() # type
+        varName_token = self.write_next_token() # varName
         
+        # 添加变量到符号表
+        self.symbol_table.define(varName_token.name,type_token.name,kind_token.name.upper())
         # while self.current.name != ";":
         #     self.write_next_token()
         # 两种不同的写法，上面一种判断结束符，只要不是结束就写，不关心写的是什么
@@ -124,7 +131,8 @@ class CompilationEngine(object):
         # ？使用if判断，*使用while判断
         while self.peek_next() == ",": # (',' varName)*
             self.write_next_token() # ","
-            self.write_next_token() # "varName"
+            varName_token = self.write_next_token() # "varName"
+            self.symbol_table.define(varName_token.name,type_token.name,kind_token.name.upper())
         
         self.write_next_token()#;
 
@@ -137,13 +145,20 @@ class CompilationEngine(object):
         起始："{" 属于父节点
         终止："}" 属于父节点
         """
+        
         self.write_next_token()         # ('constructor' | 'function' | 'method')
         self.write_next_token()         # ('void' | type)
-        self.write_next_token()         # subroutineName
+        subroutine_name_token = self.write_next_token()         # subroutineName
+        self.symbol_table.start_subroutine(subroutine_name_token.name,self.class_name)
+        
         self.write_next_token()         # '('
         self.compile_parameter_list()
         self.write_next_token()         # ')'
         self.compile_subroutine_body()
+
+        
+        self.symbol_table.end_subroutine()
+
 
 
     @tagger(tag="subroutineBody")
@@ -175,13 +190,15 @@ class CompilationEngine(object):
         终止：")" 属于父节点
         """
         if self.peek_next() != ")": # 可能没有参数
-            self.write_next_token() # type
-            self.write_next_token() # varName
+            type_token = self.write_next_token() # type
+            varname_token = self.write_next_token() # varName
+            self.symbol_table.define(varname_token.name,type_token.name,"ARG")
 
         while self.peek_next() != ")":
             self.write_next_token() # ,
-            self.write_next_token() # type
-            self.write_next_token() # varName
+            type_token = self.write_next_token() # type
+            varname_token = self.write_next_token() # varName
+            self.symbol_table.define(varname_token.name,type_token.name,"ARG")
 
     @tagger(tag="varDec")
     def compile_var_dec(self):
@@ -193,12 +210,15 @@ class CompilationEngine(object):
         终止：";"
         """
         self.write_next_token() # var
-        self.write_next_token() # type
-        self.write_next_token() # varName
+        type_token = self.write_next_token() # type
+        varname_token = self.write_next_token() # varName
+
+        self.symbol_table.define(varname_token.name,type_token.name,"VAR")
 
         while self.peek_next() == ",":
             self.write_next_token() # ,
             self.write_next_token() # varName
+            self.symbol_table.define(varname_token.name,type_token.name,"VAR")
 
         self.write_next_token() # ;
     
@@ -413,6 +433,8 @@ class CompilationEngine(object):
             self.write_terminal_tag(token.name,'stringConstant')
         elif token.type == 'IDENTIFIER':
             self.write_terminal_tag(token.name,'identifier')
+        
+        return token
 
     def write_terminal_tag(self,token,tag):
         """
