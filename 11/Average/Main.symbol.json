@@ -1,0 +1,35 @@
+[
+    {
+        "name": "global",
+        "entry": {}
+    },
+    {
+        "name": "class",
+        "entry": {}
+    },
+    {
+        "name": "Subroutine:main",
+        "entry": {
+            "this": {
+                "type": "Main",
+                "kind": "ARG",
+                "index": 0
+            },
+            "a": {
+                "type": "Array",
+                "kind": "VAR",
+                "index": 0
+            },
+            "length": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 1
+            },
+            "i": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 3
+            }
+        }
+    }
+]

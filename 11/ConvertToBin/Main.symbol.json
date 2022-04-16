@@ -1,0 +1,90 @@
+[
+    {
+        "name": "global",
+        "entry": {}
+    },
+    {
+        "name": "class",
+        "entry": {}
+    },
+    {
+        "name": "Subroutine:main",
+        "entry": {
+            "this": {
+                "type": "Main",
+                "kind": "ARG",
+                "index": 0
+            },
+            "value": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "Subroutine:convert",
+        "entry": {
+            "this": {
+                "type": "Main",
+                "kind": "ARG",
+                "index": 0
+            },
+            "value": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 1
+            },
+            "mask": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 1
+            },
+            "loop": {
+                "type": "boolean",
+                "kind": "VAR",
+                "index": 2
+            }
+        }
+    },
+    {
+        "name": "Subroutine:nextMask",
+        "entry": {
+            "this": {
+                "type": "Main",
+                "kind": "ARG",
+                "index": 0
+            },
+            "mask": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 1
+            }
+        }
+    },
+    {
+        "name": "Subroutine:fillMemory",
+        "entry": {
+            "this": {
+                "type": "Main",
+                "kind": "ARG",
+                "index": 0
+            },
+            "startAddress": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 1
+            },
+            "length": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 2
+            },
+            "value": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 3
+            }
+        }
+    }
+]

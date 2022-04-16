@@ -26,6 +26,7 @@ class JackAnalyzer(object):
             ce.set_tokens(tokenizer.get_tokens())
             # ce.print_tokens()
             ce.run() # 总是从Class Main开始
+            
 
     def run(self):
         for jackfile in self.jackfiles:

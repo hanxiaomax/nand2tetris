@@ -25,7 +25,7 @@ class CompilationEngine(object):
         self.index = 0
         self.current = None
         self.indent = 0
-        self.symbol_table = SymbolTable(jackfile.replace(".jack",".symbol"))
+        self.symbol_table = SymbolTable(jackfile.replace(".jack",".symbol.json"))
         self.class_name = None
 
     def __enter__(self):
@@ -35,7 +35,7 @@ class CompilationEngine(object):
 
     def __exit__(self,exc_type,exc_val,exc_tb):
         self.xml.close()
-        self.symbol_table.close()
+        self.symbol_table.dump() # save to json file
         print("CompilationEngine exit, close ",self.xmlfile)
         if exc_val:
             print("exit:", exc_type, exc_val, exc_tb)

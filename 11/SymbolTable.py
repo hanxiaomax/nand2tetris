@@ -1,24 +1,24 @@
 from collections import OrderedDict
-import traceback
-
+import json
 class UndefinedVarException(Exception):
     def __str__(self,name):
         return "Undefined variable name {}".format(name) 
 
 class Symbol(object):
     def __init__(self,_name,_type,_kind,_index):
-        self._name = _name 
-        self._type = _type
-        self._kind  = _kind
-        self._index = _index
+        self._name = _name
+        self.symbol = {
+            "type":_type,
+            "kind":_kind,
+            "index":_index
+        }
 
     def __str__(self):
         return "{: <20}{: <20}{: <20}{: <20}".format(self._name,self._type,self._kind,str(self.index))
 
-
     @property
     def kind(self):
-        return self._kind
+        return self.symbol["kind"]
 
     @property
     def name(self):
@@ -26,11 +26,14 @@ class Symbol(object):
 
     @property
     def type(self):
-        return self._type
+        return self.symbol["type"]
     
     @property
     def index(self):
-        return self._index
+        return self.symbol["index"]
+    
+    def tojson(self):
+        return self.symbol
 
 
 
@@ -43,12 +46,11 @@ class SymbolTable(object):
             "ARG":0
         }
         self.symbol_tables = []
-        self.symbol_file = open(symbol_file,"w")
+        self.json_output = [] # 用于输出json格式的符号表，subroutine的所有表都包含在内
+        self.symbol_file =symbol_file
         # 创建默认的符号表
         self.create_table("global")# 全局作用域 static 符号表
         self.create_table("class")# 类作用域 field 符号表
-        
-
 
     def create_table(self,name):
         """
@@ -60,10 +62,8 @@ class SymbolTable(object):
             "entry" : OrderedDict()
         }
         self.symbol_tables.append(table)
-        self.write("\nTABLE <{}>".format(table["name"]))
-        self.write("-"*50)
-        self.write("{: <20}{: <20}{: <20}{: <20}".format("name","type","kind","index"))
-        self.write("-"*50)
+        #只需要创建表的时候将其加入即可，这里是引用，对表的操作是同步的
+        self.json_output.append(table) 
 
     def start_subroutine(self,name,class_name):
         # reset counter
@@ -74,7 +74,6 @@ class SymbolTable(object):
         self.define("this",class_name,"ARG")
 
     def end_subroutine(self):
-        # del self.current_table()
         del self.symbol_tables[-1] #方便打印，不直接删除而是修改index
 
     def subroutine_scope_table(self):
@@ -98,7 +97,6 @@ class SymbolTable(object):
         
         symbol = Symbol(name,_type,kind,self.count[kind])
         table["entry"][name] = symbol
-        self.write(str(symbol))
         self.count[kind]+=1
 
     def var_count(self,kind):
@@ -120,8 +118,9 @@ class SymbolTable(object):
     def indexof(self,name):
         return self.search_symbol(name).index
 
-    def write(self,content):
-        self.symbol_file.write(content+"\n")
-    
-    def close(self):
-        self.symbol_file.close()
+    def dump(self):
+        with open(self.symbol_file,"w") as f:
+            json.dump(self.json_output, f ,indent=4,default=self.tojson)
+
+    def tojson(self,obj):
+        return obj.tojson()
