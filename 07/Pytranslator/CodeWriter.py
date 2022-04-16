@@ -52,7 +52,7 @@ class CodeWrite(object):
             #  true  = -1 (minus one, 0xFFFF) 
             #  false = 0 (zero, 0x0000), respectively.
             
-            # 没有执行跳转条件，表明判断条件不成立，栈顶赋值 False
+           # 没有执行跳转条件，表明判断条件不成立，栈顶赋值 False
             self.write("@SP")
             self.write("A=M")
             self.write('M=0') # False
@@ -62,7 +62,7 @@ class CodeWrite(object):
             # 执行跳转条件，表明判断条件成立，栈顶赋值 True
             self.write("(BOOL_START_{})".format(self.bool_label))
             self.write("@SP")
-            self.write("A=M")
+            self.write("A=M") 
             self.write('M=-1') # True
             self.write("(BOOL_END_{})".format(self.bool_label))
             self.bool_label += 1
