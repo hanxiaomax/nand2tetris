@@ -315,21 +315,27 @@ class CompilationEngine(object):
     def compile_do(self):
         """
         "do" subroutineCall ";"
+        do 语句不关心函数的返回值，但是此时返回值在栈顶，必须要将其pop掉
         """
         self.write_next_token() #do
         self.write_next_token() # subroutineName or ( className | varName)
         self.subroutine_call()
+        self.vm_writer.write_pop('TEMP', 0) # pop temp 0 丢弃返回值
         self.write_next_token() # ;
 
     @tagger(tag="returnStatement")
     def compile_return(self):
         """
         "return" expr? ";"
+        return 语句如果不返回任何值，则编译器必须返回0作为默认值
         """
 
         self.write_next_token() # return
         if self.peek_next() != ";":
             self.compile_expression()
+        else: # 无返回值
+            self.vm_writer.write_push("CONST",0) # push constant 0
+
         self.write_next_token() # ;
 
     def subroutine_call(self):
