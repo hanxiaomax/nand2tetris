@@ -342,13 +342,17 @@ class CompilationEngine(object):
         """
         # 在父节点中读到 ( 进入该函数，由于expressionList可能为空，不能默认调用一次expr
         # 读取下一个 token，如果不是终止符号，才调用 expr
-
+        nargs = 0
         if self.peek_next() != ")":
+            nargs +=1
             self.compile_expression()
         
         while self.peek_next() != ")":
+            nargs += 1
             self.write_next_token()
             self.compile_expression()
+        
+        return nargs
     
     @tagger(tag="term")
     def compile_term(self):
