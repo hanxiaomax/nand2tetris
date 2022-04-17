@@ -66,6 +66,8 @@ class SymbolTable(object):
     def dump(self):
         with open(self.symbol_file,"w") as f:
             json.dump(self.json_output, f ,indent=4,default=self.tojson)
+        
+        return self.symbol_file
 
     def tojson(self,obj):
         if isinstance(obj,Symbol):

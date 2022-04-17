@@ -42,8 +42,9 @@ class CompilationEngine(object):
     def __exit__(self,exc_type,exc_val,exc_tb):
         self.xml.close()
         self.vm_writer.close()
-        self.symbol_table.dump() # save to json file
         print("CompilationEngine exit, close ",self.xmlfile)
+        print("Dump Symbol Table",self.symbol_table.dump())
+        
         if exc_val:
             print("exit:", exc_type, exc_val, exc_tb)
             print(traceback.print_tb(exc_tb))
