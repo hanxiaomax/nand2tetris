@@ -149,11 +149,7 @@ class CompilationEngine(object):
     @tagger(tag="subroutineDec")
     def compile_subroutineDec(self):
         """
-        语法： 'constructor' | 'function' | 'method' 'void' | type subroutineName '('parameterList ')' subroutineBody
-        父节点： subroutineDec
-        子节点： parameterlist / subroutinebody
-        起始："{" 属于父节点
-        终止："}" 属于父节点
+        'constructor' | 'function' | 'method' 'void' | type subroutineName '('parameterList ')' subroutineBody
         """
         
         self.write_next_token()         # ('constructor' | 'function' | 'method')
@@ -168,8 +164,6 @@ class CompilationEngine(object):
 
         
         self.symbol_table.end_subroutine()
-
-
 
     @tagger(tag="subroutineBody")
     def compile_subroutine_body(self):
@@ -193,11 +187,7 @@ class CompilationEngine(object):
     @tagger(tag="parameterList")
     def compile_parameter_list(self):
         """
-        语法：(( type varName ) ( "," type varName )*)?
-        父节点： subroutineDec
-        子节点：无子节点
-        起始："(" 属于父节点
-        终止：")" 属于父节点
+        (( type varName ) ( "," type varName )*)?
         """
         if self.peek_next() != ")": # 可能没有参数
             type_token = self.write_next_token() # type
@@ -213,11 +203,7 @@ class CompilationEngine(object):
     @tagger(tag="varDec")
     def compile_var_dec(self):
         """
-        语法：'var' type varName (',' varName)* ';'
-        父节点： subroutinebody
-        子节点：无子节点
-        起始："var"
-        终止：";"
+        'var' type varName (',' varName)* ';'
         """
         self.write_next_token() # var
         type_token = self.write_next_token() # type
@@ -234,14 +220,6 @@ class CompilationEngine(object):
     
     @tagger(tag="statements")
     def compile_statements(self):
-        """
-        语法：
-        父节点： subroutinebody
-        子节点： let / if / while / do / return 
-        起始： STATEMENT_TOKENS
-        终止：} 
-        """
-        
         while self.peek_next() != "}": # ending for statements. for each statement based on thier own
             if self.peek_next() == "let":
                 self.compile_let()
@@ -257,11 +235,7 @@ class CompilationEngine(object):
     @tagger(tag="letStatement")
     def compile_let(self):
         """
-        语法："let" varName ( "[" expr "]" )? "=" expr ";"
-        父节点： statements
-        子节点： expr
-        起始： let
-        终止：";"
+        "let" varName ( "[" expr "]" )? "=" expr ";"
         """
         self.write_next_token() #let
         self.write_next_token() #varName
@@ -278,11 +252,7 @@ class CompilationEngine(object):
     @tagger(tag="ifStatement")
     def compile_if(self):
         """
-        语法："if" "(" expr ")" "{" statements "}" ("else" "{" statements "}" )? 
-        父节点： statements
-        子节点： expr / statements
-        起始： if
-        终止："}"
+        "if" "(" expr ")" "{" statements "}" ("else" "{" statements "}" )? 
         """
         self.write_next_token()     # if
         self.write_next_token()     # '('
@@ -302,11 +272,7 @@ class CompilationEngine(object):
     @tagger(tag="whileStatement")
     def compile_while(self):
         """
-        语法："while" "(" expr ")" "{" statements "}"
-        父节点： statements
-        子节点： expr / statements
-        起始： while
-        终止："}"
+        "while" "(" expr ")" "{" statements "}"
         """
         self.write_next_token()     # 'while'
         self.write_next_token()     # '('
@@ -320,14 +286,21 @@ class CompilationEngine(object):
     @tagger(tag="doStatement")
     def compile_do(self):
         """
-        语法："do" subroutineCall ";"
-        父节点： statements
-        子节点： expr  / exprList (subroutineCall不属于子节点，属于类型定义)
-        起始： do
-        终止：";"
+        "do" subroutineCall ";"
         """
         self.write_next_token() #do
         self.subroutine_call()
+        self.write_next_token() # ;
+
+    @tagger(tag="returnStatement")
+    def compile_return(self):
+        """
+        "return" expr? ";"
+        """
+
+        self.write_next_token() # return
+        if self.peek_next() != ";":
+            self.compile_expression()
         self.write_next_token() # ;
 
     def subroutine_call(self):
@@ -349,29 +322,13 @@ class CompilationEngine(object):
             self.write_next_token() # ")"
 
 
-    @tagger(tag="returnStatement")
-    def compile_return(self):
-        """
-        语法："return" expr? ";"
-        父节点： statements
-        子节点： expr
-        起始： return
-        终止：";"
-        """
 
-        self.write_next_token() # return
-        if self.peek_next() != ";":
-            self.compile_expression()
-        self.write_next_token() # ;
 
 
     @tagger(tag="expression")
     def compile_expression(self):
         """
-        语法：term (op term)*
-        父节点： let / if / while / return / term /subroutineCall
-        子节点： term
-        起始符号和结束符号均属于父节点
+        term (op term)*
         """
         self.compile_term()
         while self.peek_next() in OPERATORS:
