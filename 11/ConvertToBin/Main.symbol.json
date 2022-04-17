@@ -1,14 +1,17 @@
 [
     {
-        "name": "global",
+        "name": "Main.jack",
+        "type": "static",
         "entry": {}
     },
     {
         "name": "class",
+        "type": "Main",
         "entry": {}
     },
     {
-        "name": "Subroutine:main",
+        "name": "main",
+        "type": "Subroutine",
         "entry": {
             "this": {
                 "type": "Main",
@@ -23,7 +26,8 @@
         }
     },
     {
-        "name": "Subroutine:convert",
+        "name": "convert",
+        "type": "Subroutine",
         "entry": {
             "this": {
                 "type": "Main",
@@ -53,7 +57,8 @@
         }
     },
     {
-        "name": "Subroutine:nextMask",
+        "name": "nextMask",
+        "type": "Subroutine",
         "entry": {
             "this": {
                 "type": "Main",
@@ -68,7 +73,8 @@
         }
     },
     {
-        "name": "Subroutine:fillMemory",
+        "name": "fillMemory",
+        "type": "Subroutine",
         "entry": {
             "this": {
                 "type": "Main",

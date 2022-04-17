@@ -42,6 +42,9 @@ class SymbolTable(object):
     """符号表
     支持任意级嵌套的作用域，对于本项目只需要两级（class level 和 subroutine level）
     支持输出符号表结构到 json 文件
+    默认符号表包含两个:
+    - static 为文件作用域，在 compile_jackfile 中创建
+    - class 为类作用域，在compile_class中创建
     """
     def __init__(self,symbol_file):
         self.count = {
@@ -54,8 +57,7 @@ class SymbolTable(object):
         self.json_output = [] # 用于输出json格式的符号表，subroutine的所有表都包含在内
         self.symbol_file =symbol_file
         # 创建默认的符号表
-        self.create_table("global")# 全局作用域 static 符号表
-        self.create_table("class")# 类作用域 field 符号表'
+        
 
     def dump(self):
         with open(self.symbol_file,"w") as f:
@@ -65,13 +67,14 @@ class SymbolTable(object):
         if isinstance(obj,Symbol):
             return obj.tojson()
 
-    def create_table(self,name):
+    def create_table(self,name,_type):
         """
         在链表尾部插入一个新的表，没进入一个新的作用域时调用一次，退出作用域时进行删除
         默认的两个表在0,1位置，分别为全局作用域和类作用域
         """
         table = {
-            "name" : name,
+            "name" : name, 
+            "type" : _type,
             "entry" : OrderedDict()
         }
         self.symbol_tables.append(table)
@@ -87,7 +90,7 @@ class SymbolTable(object):
         """
         self.count["VAR"] = 0
         self.count["ARG"] = 0
-        self.create_table("Subroutine:"+name)
+        self.create_table(name,"Subroutine")
         # 默认的第一个参数
         self.define("this",class_name,"ARG")
 

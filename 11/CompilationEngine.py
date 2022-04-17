@@ -20,6 +20,7 @@ UNARY_OPERATORS = [ '-', '~' ]
 
 class CompilationEngine(object):
     def __init__(self,jackfile,type="XML"):
+        self.jackfile = jackfile
         self.xmlfile = jackfile.replace(".jack","T-my.xml") if type == "TXML" else jackfile.replace(".jack","-my.xml")
         self.tokens = None
         self.index = 0
@@ -46,12 +47,12 @@ class CompilationEngine(object):
         for token in self.tokens:
             print(token)
 
-    def run(self):
-        return self.compile_class() # class always be the root 
-
     def set_tokens(self,tokens):
+        """
+        存放由 Tokenizer 创建的 tokens 
+        """
         self.tokens = tokens
-    
+
     def has_more_tokens(self):
         return self.index < len(self.tokens)
 
@@ -84,8 +85,15 @@ class CompilationEngine(object):
             return wrapper
         return deco
     
-   
-
+    def compile_jackfile(self):
+        """
+        对jack文件进行编译，首先需要创建文件作用域的static符号表
+        然后从唯一的根节点 class 开始编译
+        """
+        # 创建文件全局作用域 static 符号表
+        self.symbol_table.create_table(self.jackfile.split("/")[-1],"static")
+        # class is the only root
+        self.compile_class() 
 
     @tagger(tag="class")
     def compile_class(self):
@@ -95,8 +103,10 @@ class CompilationEngine(object):
         self.write_next_token() # class
         class_name_token = self.write_next_token() # className
         self.class_name = class_name_token.name
+        # create class scope symbol table (field)
+        self.symbol_table.create_table("class",self.class_name) 
         self.write_next_token() # "{"
-
+        
         while self.peek_next() in CLASS_VAR_DEC_TOKENS: # classVarDec*
             self.compile_class_var_dec()
 
