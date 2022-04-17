@@ -133,7 +133,7 @@ class SymbolTable(object):
     def search_symbol(self,name):
         for table in self.symbol_tables[::-1]: #从链表尾部向前遍历，尾部为最新的作用域
             if name in table["entry"].keys():
-                return table.get(name)
+                return table["entry"][name]
         
         raise UndefinedVarException(name)
 
