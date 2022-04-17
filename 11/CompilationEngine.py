@@ -72,7 +72,11 @@ class CompilationEngine(object):
         if self.has_more_tokens():
             next_token = self.tokens[self.index]
             return next_token.name
-    
+    def peek_next_type(self):
+        if self.has_more_tokens():
+            next_token = self.tokens[self.index]
+            return next_token.type
+
     def tagger(tag=None): 
         """
         装饰compile_x函数，在其前后自动添加对应的tag
@@ -296,6 +300,7 @@ class CompilationEngine(object):
         "do" subroutineCall ";"
         """
         self.write_next_token() #do
+        self.write_next_token() # subroutineName or ( className | varName)
         self.subroutine_call()
         self.write_next_token() # ;
 
@@ -315,8 +320,8 @@ class CompilationEngine(object):
         subroutineName '(' expressionList ')' | ( className | varName) '.' subroutineName '(' expressionList ')'
         不是子节点，不需要加tag
         """
-        
-        self.write_next_token() # subroutineName or ( className | varName)
+        # 特殊处理，将subroutineName或者( className | varName) 拿到外面写
+        # self.write_next_token() # subroutineName or ( className | varName)
         if self.peek_next() == "(":
             self.write_next_token() # "("
             self.compile_expression_list()
@@ -327,10 +332,6 @@ class CompilationEngine(object):
             self.write_next_token() # "("
             self.compile_expression_list()
             self.write_next_token() # ")"
-
-
-
-
 
     @tagger(tag="expression")
     def compile_expression(self):
@@ -378,22 +379,16 @@ class CompilationEngine(object):
             self.write_next_token() #(
             self.compile_expression() # expr
             self.write_next_token() # )
+        elif self.peek_next_type() in ["INT_CONSTANT","STRING_CONSTANT","KEYWORD"]:
+            self.write_next_token()
         else: #identifier 
-            self.write_next_token() # integerConstant | stringConstant | keywordConstant | varName | 
+            self.write_next_token() #  varName |  subroutineCall
             if self.peek_next() == "[": # expr
                 self.write_next_token() # "["
                 self.compile_expression()  # expr
                 self.write_next_token() # "]"
-            elif self.peek_next() == "(":
-                self.write_next_token() # "("
-                self.compile_expression_list()
-                self.write_next_token() # ")"
-            elif self.peek_next() == ".":
-                self.write_next_token() # "."
-                self.write_next_token() # "subroutineName"
-                self.write_next_token() # "("
-                self.compile_expression_list()
-                self.write_next_token() # ")"
+            else:
+                self.subroutine_call()
     
     def write(self,_xml):
         self.xml.write(_xml)
