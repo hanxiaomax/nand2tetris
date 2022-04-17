@@ -1,6 +1,7 @@
 from functools import wraps
 import traceback
 from SymbolTable import SymbolTable
+from VMWriter import VMWriter
 
 CLASS_VAR_DEC_TOKENS = [ "static", "field" ]
 SUBROUTINE_TOKENS = [ "function", "method", "constructor" ]
@@ -21,12 +22,13 @@ UNARY_OPERATORS = [ '-', '~' ]
 class CompilationEngine(object):
     def __init__(self,jackfile,type="XML"):
         self.jackfile = jackfile
-        self.xmlfile = jackfile.replace(".jack","T-my.xml") if type == "TXML" else jackfile.replace(".jack","-my.xml")
+        self.xmlfile = self.jackfile.replace(".jack","T-my.xml") if type == "TXML" else self.jackfile.replace(".jack","-my.xml")
         self.tokens = None
         self.index = 0
         self.current = None
         self.indent = 0
-        self.symbol_table = SymbolTable(jackfile.replace(".jack",".symbol.json"))
+        self.symbol_table = SymbolTable(self.jackfile.replace(".jack",".symbol.json"))
+        self.vm_writer = VMWriter(self.jackfile.replace(".jack",".vm"))
         self.class_name = None
 
     def __enter__(self):
