@@ -1,11 +1,15 @@
 from collections import OrderedDict
 import json
 class UndefinedVarException(Exception):
-    def __str__(self,name):
-        return "Undefined variable name {}".format(name) 
+    def __init__(self,name):
+        self.name = name
+    def __str__(self):
+        return "Undefined variable name {}".format(self.name) 
 class UnsupportedVarKind(Exception):
-    def __str__(self,kind):
-        return "Unsupported variable kind {}".format(kind) 
+    def __init__(self,kind):
+        self.kind = kind
+    def __str__(self):
+        return "Unsupported variable kind {}".format(self.kind) 
 
 class Symbol(object):
     def __init__(self,_name,_type,_kind,_index):
