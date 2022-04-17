@@ -264,17 +264,45 @@ class CompilationEngine(object):
     def compile_let(self):
         """
         "let" varName ( "[" expr "]" )? "=" expr ";"
+        赋值语句，需要写vmcode
+        数组访问操作：
+        push arr // base address 将数组基地址压栈
+        {{vm code computing and pushing expr1}}
+        add // top stack value = RAM address of arr[expr1]
+        {{vm code computing and pushing expr2}}
+        pop temp 0 // temp 0 = the value of expr2 ，即将表达式2的求值结果暂存到 temp 0
+                              // top stack value = RAM address of arr[expr2]
+        pop pointer 1 // 将计算结果赋值为 THAT，将that段对齐到arr[2]
+        push temp 0  // 表达式 expr2 的结果
+        pop that 0  // 对that 0赋值，以实现对arr[expr1]赋值
         """
         self.write_next_token() #let
-        self.write_next_token() #varName
-        if self.peek_next() == "[":
+        var_name_token = self.write_next_token() #varName
+        kind = self.symbol_table.kindof(var_name_token.name)
+        index = self.symbol_table.indexof(var_name_token.name)
+
+        if self.peek_next() == "[": # 数组访问
             self.write_next_token() # "["
-            self.compile_expression()
+            self.vm_writer.write_push(kind, index) # push arr
+            self.compile_expression() # expr1 求值
             self.write_next_token() # "]"
 
-        self.write_next_token() # "="
-        self.compile_expression()
-        self.write_next_token() # ";"
+            self.vm_writer.write_arithmetic('ADD')  # add
+
+            self.write_next_token() # "="
+            self.compile_expression() # expr2 求值
+            self.write_next_token() # ";"
+            
+            self.vm_writer.write_pop('TEMP', 0) # pop temp 0 存放 expr2结果到TEMP段
+            self.vm_writer.write_pop('POINTER', 1) # pop pointer 1
+            self.vm_writer.write_push('TEMP', 0) # push temp 0
+            self.vm_writer.write_pop('THAT', 0) # pop that 0
+        else: # 普通表达式求值
+            self.write_next_token() # "="
+            self.compile_expression()
+            self.write_next_token() # ";"
+
+            self.vm_writer.write_pop(kind, index) # 表达式结果存放到 kind 段
 
 
     @tagger(tag="ifStatement")
