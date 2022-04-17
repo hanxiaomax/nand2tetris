@@ -98,7 +98,6 @@ class SymbolTable(object):
         self.count["ARG"] = 0
         self.create_table(name,"Subroutine")
         # 默认的第一个参数
-        self.define("this",class_name,"ARG")
 
     def end_subroutine(self):
         """

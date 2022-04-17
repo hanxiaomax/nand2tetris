@@ -41,7 +41,6 @@ class CompilationEngine(object):
 
     def __exit__(self,exc_type,exc_val,exc_tb):
         self.xml.close()
-        self.vm_writer.close()
         print("CompilationEngine exit, close ",self.xmlfile)
         print("Dump Symbol Table",self.symbol_table.dump())
         
@@ -105,6 +104,7 @@ class CompilationEngine(object):
         self.symbol_table.create_table(self.jackfile.split("/")[-1],"static")
         # class is the only root
         self.compile_class() 
+        self.vm_writer.close()
 
     @tagger(tag="class")
     def compile_class(self):
@@ -130,11 +130,8 @@ class CompilationEngine(object):
     @tagger(tag="classVarDec")
     def compile_class_var_dec(self):
         """
-        语法： ('static' | 'field' ) type varName (',' varName)* ';'
-        父节点： subroutineDec
-        子节点：没有子节点，遇到结束符返回到父节点。
-        起始： CLASS_VAR_DEC_TOKENS
-        终止：";"
+        ('static' | 'field' ) type varName (',' varName)* ';'
+        类变量声明语句，只添加符号到符号表，不需要写vmcode
         """
         kind_token = self.write_next_token() # 'static' | 'field' 
         type_token = self.write_next_token() # type
@@ -161,29 +158,31 @@ class CompilationEngine(object):
     def compile_subroutineDec(self):
         """
         'constructor' | 'function' | 'method' 'void' | type subroutineName '('parameterList ')' subroutineBody
+        声明语句，只需要添加符号表
         """
         
-        self.write_next_token()         # ('constructor' | 'function' | 'method')
+        kind_token = self.write_next_token()         # ('constructor' | 'function' | 'method')
         self.write_next_token()         # ('void' | type)
         subroutine_name_token = self.write_next_token()         # subroutineName
+        # 进入新的函数作用域
         self.symbol_table.start_subroutine(subroutine_name_token.name,self.class_name)
+
+        if kind_token.name != "function":
+            self.define("this",self.class_name,"ARG")
         
         self.write_next_token()         # '('
         self.compile_parameter_list()
         self.write_next_token()         # ')'
-        self.compile_subroutine_body()
+        self.compile_subroutine_body(subroutine_name_token.name,kind_token.name)
 
         
         self.symbol_table.end_subroutine()
 
     @tagger(tag="subroutineBody")
-    def compile_subroutine_body(self):
+    def compile_subroutine_body(self,name,kind):
         """
-        语法：'{' varDec* statements '}'
-        父节点： subroutineDec
-        子节点： varDec / statements
-        起始："{" 属于本节点
-        终止："}" 属于本节点
+        '{' varDec* statements '}'
+        函数体，包含局部变量声明（创建符号表）和函数体语句（写VMcode）
         """
         self.write_next_token() #{
         
@@ -192,13 +191,30 @@ class CompilationEngine(object):
         
         if self.peek_next() in STATEMENT_TOKENS:
             self.compile_statements()
- 
+
+        ## 输出一般函数实现指令
+        ## function name nargs，函数foo的实现，使用nargs个局部变量
+        function_name = '{}.{}'.format(self.class_name, name)
+        nlocals = self.symbol_table.var_count('VAR') # 获取局部变量个数
+        self.vm_writer.write_func(function_name, nlocals)
+        
+        ## 对于 构造函数和类方法，有额外的操作
+        if kind == 'constructor':
+            num_fields = self.symbol_table.var_count('FIELD')
+            self.vm_writer.write_push('CONST', num_fields)
+            self.vm_writer.write_call('Memory.alloc', 1)
+            self.vm_writer.write_pop('POINTER', 0)
+        elif kind == 'method':
+            self.vm_writer.write_push('ARG', 0)
+            self.vm_writer.write_pop('POINTER', 0)
+
         self.write_next_token()# }
 
     @tagger(tag="parameterList")
     def compile_parameter_list(self):
         """
         (( type varName ) ( "," type varName )*)?
+        参数列表，属于声明的一种，只需要创建符号表
         """
         if self.peek_next() != ")": # 可能没有参数
             type_token = self.write_next_token() # type
@@ -215,6 +231,7 @@ class CompilationEngine(object):
     def compile_var_dec(self):
         """
         'var' type varName (',' varName)* ';'
+        函数内部变量声明，只需要创建符号表
         """
         self.write_next_token() # var
         type_token = self.write_next_token() # type

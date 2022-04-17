@@ -13,11 +13,6 @@
         "name": "main",
         "type": "Subroutine",
         "entry": {
-            "this": {
-                "type": "Main",
-                "kind": "ARG",
-                "index": 0
-            },
             "value": {
                 "type": "int",
                 "kind": "VAR",
@@ -29,15 +24,10 @@
         "name": "convert",
         "type": "Subroutine",
         "entry": {
-            "this": {
-                "type": "Main",
-                "kind": "ARG",
-                "index": 0
-            },
             "value": {
                 "type": "int",
                 "kind": "ARG",
-                "index": 1
+                "index": 0
             },
             "mask": {
                 "type": "int",
@@ -60,15 +50,10 @@
         "name": "nextMask",
         "type": "Subroutine",
         "entry": {
-            "this": {
-                "type": "Main",
-                "kind": "ARG",
-                "index": 0
-            },
             "mask": {
                 "type": "int",
                 "kind": "ARG",
-                "index": 1
+                "index": 0
             }
         }
     },
@@ -76,25 +61,20 @@
         "name": "fillMemory",
         "type": "Subroutine",
         "entry": {
-            "this": {
-                "type": "Main",
-                "kind": "ARG",
-                "index": 0
-            },
             "startAddress": {
                 "type": "int",
                 "kind": "ARG",
-                "index": 1
+                "index": 0
             },
             "length": {
                 "type": "int",
                 "kind": "ARG",
-                "index": 2
+                "index": 1
             },
             "value": {
                 "type": "int",
                 "kind": "ARG",
-                "index": 3
+                "index": 2
             }
         }
     }
