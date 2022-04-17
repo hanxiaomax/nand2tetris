@@ -38,6 +38,11 @@
             "mask": {
                 "type": "int",
                 "kind": "VAR",
+                "index": 0
+            },
+            "position": {
+                "type": "int",
+                "kind": "VAR",
                 "index": 1
             },
             "loop": {

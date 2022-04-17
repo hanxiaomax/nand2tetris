@@ -3,6 +3,9 @@ import json
 class UndefinedVarException(Exception):
     def __str__(self,name):
         return "Undefined variable name {}".format(name) 
+class UnsupportedVarKind(Exception):
+    def __str__(self,kind):
+        return "Unsupported variable kind {}".format(kind) 
 
 class Symbol(object):
     def __init__(self,_name,_type,_kind,_index):
@@ -10,7 +13,7 @@ class Symbol(object):
         self.symbol = {
             "type":_type,
             "kind":_kind,
-            "index":_index
+            "index":_index,
         }
 
     def __str__(self):
@@ -35,9 +38,11 @@ class Symbol(object):
     def tojson(self):
         return self.symbol
 
-
-
 class SymbolTable(object):
+    """符号表
+    支持任意级嵌套的作用域，对于本项目只需要两级（class level 和 subroutine level）
+    支持输出符号表结构到 json 文件
+    """
     def __init__(self,symbol_file):
         self.count = {
             "STATIC":0,
@@ -50,7 +55,15 @@ class SymbolTable(object):
         self.symbol_file =symbol_file
         # 创建默认的符号表
         self.create_table("global")# 全局作用域 static 符号表
-        self.create_table("class")# 类作用域 field 符号表
+        self.create_table("class")# 类作用域 field 符号表'
+
+    def dump(self):
+        with open(self.symbol_file,"w") as f:
+            json.dump(self.json_output, f ,indent=4,default=self.tojson)
+
+    def tojson(self,obj):
+        if isinstance(obj,Symbol):
+            return obj.tojson()
 
     def create_table(self,name):
         """
@@ -66,7 +79,12 @@ class SymbolTable(object):
         self.json_output.append(table) 
 
     def start_subroutine(self,name,class_name):
-        # reset counter
+        """创建subroutine level 符号表
+        Args:
+            name (str): 当前符号表名 
+            class_name (str): 当前符号表所属类的类名，用于确定this变量的类别
+        总是包含一个this变量
+        """
         self.count["VAR"] = 0
         self.count["ARG"] = 0
         self.create_table("Subroutine:"+name)
@@ -74,6 +92,11 @@ class SymbolTable(object):
         self.define("this",class_name,"ARG")
 
     def end_subroutine(self):
+        """
+        退出 subroutine 时调用，用于清理当前 subroutine level的符号表
+        """
+        # reset counter
+
         del self.symbol_tables[-1] #方便打印，不直接删除而是修改index
 
     def subroutine_scope_table(self):
@@ -93,14 +116,11 @@ class SymbolTable(object):
         elif kind == "VAR" or kind == "ARG":
             table = self.subroutine_scope_table()
         else:
-            raise
+            raise UnsupportedVarKind(kind)
         
         symbol = Symbol(name,_type,kind,self.count[kind])
         table["entry"][name] = symbol
         self.count[kind]+=1
-
-    def var_count(self,kind):
-        return self.count[kind]
 
     def search_symbol(self,name):
         for table in self.symbol_tables[::-1]: #从链表尾部向前遍历，尾部为最新的作用域
@@ -108,7 +128,11 @@ class SymbolTable(object):
                 return table.get(name)
         
         raise UndefinedVarException(name)
-                
+
+    ### API START####
+    def var_count(self,kind):
+        return self.count[kind]
+
     def kindof(self,name):
         return self.search_symbol(name).kind
 
@@ -117,10 +141,5 @@ class SymbolTable(object):
 
     def indexof(self,name):
         return self.search_symbol(name).index
+    ### API END####
 
-    def dump(self):
-        with open(self.symbol_file,"w") as f:
-            json.dump(self.json_output, f ,indent=4,default=self.tojson)
-
-    def tojson(self,obj):
-        return obj.tojson()

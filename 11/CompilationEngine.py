@@ -217,7 +217,7 @@ class CompilationEngine(object):
 
         while self.peek_next() == ",":
             self.write_next_token() # ,
-            self.write_next_token() # varName
+            varname_token = self.write_next_token() # varName
             self.symbol_table.define(varname_token.name,type_token.name,"VAR")
 
         self.write_next_token() # ;
