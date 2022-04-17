@@ -30,6 +30,9 @@ class CompilationEngine(object):
         self.symbol_table = SymbolTable(self.jackfile.replace(".jack",".symbol.json"))
         self.vm_writer = VMWriter(self.jackfile.replace(".jack",".vm"))
         self.class_name = None
+        ## for unique labels
+        self.while_label_idx = 0
+        self.if_label_idx = 0
 
     def __enter__(self):
         print("Open file ",self.xmlfile)
@@ -38,6 +41,7 @@ class CompilationEngine(object):
 
     def __exit__(self,exc_type,exc_val,exc_tb):
         self.xml.close()
+        self.vm_writer.close()
         self.symbol_table.dump() # save to json file
         print("CompilationEngine exit, close ",self.xmlfile)
         if exc_val:
@@ -67,7 +71,7 @@ class CompilationEngine(object):
         if self.has_more_tokens():
             next_token = self.tokens[self.index]
             return next_token.name
-
+    
     def tagger(tag=None): 
         """
         装饰compile_x函数，在其前后自动添加对应的tag
