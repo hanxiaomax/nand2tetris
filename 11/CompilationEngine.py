@@ -18,7 +18,20 @@ OPERATORS = [
         '='
     ]
 UNARY_OPERATORS = [ '-', '~' ]
+ARITHMETIC = {
+'+': 'ADD',
+'-': 'SUB',
+'=': 'EQ',
+'>': 'GT',
+'<': 'LT',
+'&': 'AND',
+'|': 'OR'
+}
 
+ARITHMETIC_UNARY = {
+'-': 'NEG',
+'~': 'NOT'
+}
 class CompilationEngine(object):
     def __init__(self,jackfile,type="XML"):
         self.jackfile = jackfile
@@ -391,8 +404,15 @@ class CompilationEngine(object):
         """
         self.compile_term()
         while self.peek_next() in OPERATORS:
-            self.write_next_token()
+            op_token = self.write_next_token()
+            op = op_token.name
             self.compile_term()
+            if op in ARITHMETIC.keys():
+                self.vm_writer.write_arithmetic(ARITHMETIC[op])
+            elif op == '*':
+                self.vm_writer.write_call('Math.multiply', 2)
+            elif op == '/':
+                self.vm_writer.write_call('Math.divide', 2)
 
     @tagger(tag="expressionList")
     def compile_expression_list(self):
@@ -424,20 +444,46 @@ class CompilationEngine(object):
         """
         
         if self.peek_next() in UNARY_OPERATORS:  #unaryOp term 
-            self.write_next_token() # unaryOP
+            op_token = self.write_next_token() # unaryOP
             self.compile_term() # term
+            self.vm_writer.write_arithmetic(ARITHMETIC_UNARY[op_token.name])
         elif self.peek_next() == "(": #'(' expression ')' 
             self.write_next_token() #(
             self.compile_expression() # expr
             self.write_next_token() # )
-        elif self.peek_next_type() in ["INT_CONSTANT","STRING_CONSTANT","KEYWORD"]:
-            self.write_next_token()
+        elif self.peek_next_type() == "INT_CONSTANT":# if exp is number n:
+            int_token = self.write_next_token()
+            self.vm_writer.write_push('CONST', int_token.name) # push const n
+        elif self.peek_next_type() == "STRING_CONSTANT":
+            string_token = self.write_next_token()
+            self.vm_writer.write_push('CONST', len(string_token.name))
+            self.vm_writer.write_call('String.new', 1)
+
+            for char in string_token.name:
+                self.vm_writer.write_push('CONST', ord(char))
+                self.vm_writer.write_call('String.appendChar', 2)
+        elif self.peek_next_type() ==  "KEYWORD":
+            keyword_token = self.write_next_token()
+            if keyword_token.name == 'this':
+                self.vm_writer.write_push('POINTER', 0)
+            else:
+                self.vm_writer.write_push('CONST', 0)
+
+            if keyword_token.name == 'true':
+                self.vm_writer.write_arithmetic('NOT')
         else: #identifier 
-            self.write_next_token() #  varName |  subroutineCall
+            var_name_token = self.write_next_token() #  varName |  subroutineCall
             if self.peek_next() == "[": # expr
                 self.write_next_token() # "["
                 self.compile_expression()  # expr
                 self.write_next_token() # "]"
+                kind = self.symbol_table.kindof(var_name_token.name)
+                index = self.symbol_table.indexof(var_name_token.name)
+                self.vm_writer.write_push(kind, index)
+
+                self.vm_writer.write_arithmetic('ADD')
+                self.vm_writer.write_pop('POINTER', 1)
+                self.vm_writer.write_push('THAT', 0)
             else:
                 self.subroutine_call()
     
