@@ -322,33 +322,74 @@ class CompilationEngine(object):
     def compile_if(self):
         """
         "if" "(" expr ")" "{" statements "}" ("else" "{" statements "}" )? 
+        代码生成逻辑
+        	compiled（expr)
+            not
+            if-goto IF_FALSE
+            compiled (statement1)
+            goto IF_END
+        label IF_FALSE
+        compiled (statement2)
+        label IF_END
         """
+        self.if_label_idx += 1
         self.write_next_token()     # if
         self.write_next_token()     # '('
-        self.compile_expression()    # expression
+        self.compile_expression()    # expression  # compiled（expr)
         self.write_next_token()     # ')'
         self.write_next_token()     # '{'
-        self.compile_statements()    # statements
-        self.write_next_token()     # '}'
 
+        self.vm_writer.write_arithmetic('NOT') # not
+
+        self.vm_writer.write_if('IF_FALSE_{}\n'.format(self.if_label_idx)) # if-goto IF_FALSE
+        
+        self.compile_statements()    # statements 1 
+
+        self.vm_writer.write_goto('IF_END_{}\n'.format(self.if_label_idx)) # goto IF_END
+
+        self.write_next_token()     # '}'
+        
+        
         if self.peek_next() == "else":
             self.write_next_token()     # 'else'
             self.write_next_token()     # '{'
-            self.compile_statements()    # statements
+            self.vm_writer.write_label('IF_FALSE_{}\n'.format(self.if_label_idx)) # label IF_FALSE
+            self.compile_statements()    # statements 2
             self.write_next_token()     # '}'
-
+    
+        self.vm_writer.write_label('IF_END_{}\n'.format(self.if_label_idx))
 
     @tagger(tag="whileStatement")
     def compile_while(self):
         """
         "while" "(" expr ")" "{" statements "}"
+        代码生成逻辑
+        label WHILE_START
+            compiled(expr)
+            not 考虑到if -goto的语义是跳转而非进入，这里必须取反
+            if-goto WHILE_START_END
+            compiled(statement)
+            goto WHILE_START
+        label WHILE_START_END
         """
+        self.while_label_idx += 1
+        
+        self.vm_writer.write_label('WHILE_START_{}\n'.format(self.while_label_idx)) # label WHILE_START
+
         self.write_next_token()     # 'while'
         self.write_next_token()     # '('
-        self.compile_expression()
+        self.compile_expression() # compiled(expr)
+
+        self.vm_writer.write_arithmetic('NOT') # 
         self.write_next_token()     # ')'
         self.write_next_token()     # '{'
-        self.compile_statements()    # statements
+
+        self.vm_writer.write_if('WHILE_END_{}\n'.format(self.while_label_idx)) # if-goto WHILE_START_END
+
+        self.compile_statements()    # statements 
+        self.vm_writer.write_goto('WHILE_START_{}\n'.format(self.while_label_idx)) # goto WHILE_START
+        self.vm_writer.write_label('WHILE_END{}\n'.format(self.while_label_idx)) # label WHILE_START_END
+
         self.write_next_token()     # '}'
 
 
