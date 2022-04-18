@@ -44,8 +44,8 @@ class CompilationEngine(object):
         self.vm_writer = VMWriter(self.jackfile.replace(".jack",".vm"))
         self.class_name = None
         ## for unique labels
-        self.while_label_idx = 0
-        self.if_label_idx = 0
+        self.while_label_idx = -1
+        self.if_label_idx = -1
 
     def __enter__(self):
         print("Open file ",self.xmlfile)
