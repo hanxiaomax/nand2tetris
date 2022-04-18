@@ -1,15 +1,16 @@
+from cgitb import reset
 from collections import OrderedDict
 import json
 class UndefinedVarException(Exception):
     def __init__(self,name):
         self.name = name
     def __str__(self):
-        return "Undefined variable name {}".format(self.name) 
+        return "Undefined variable name [{}]".format(self.name) 
 class UnsupportedVarKind(Exception):
     def __init__(self,kind):
         self.kind = kind
     def __str__(self):
-        return "Unsupported variable kind {}".format(self.kind) 
+        return "Unsupported variable kind [{}]".format(self.kind) 
 
 class Symbol(object):
     def __init__(self,_name,_type,_kind,_index):
@@ -135,19 +136,23 @@ class SymbolTable(object):
             if name in table["entry"].keys():
                 return table["entry"][name]
         
-        raise UndefinedVarException(name)
+        return None
 
     ### API START####
     def var_count(self,kind):
-        return self.count[kind]
+        return self.count.get(kind)
 
     def kindof(self,name):
-        return self.search_symbol(name).kind
+        result = self.search_symbol(name)
+        return result.kind if result else None
 
     def typeof(self,name):
-        return self.search_symbol(name).type
+        result = self.search_symbol(name)
+        return result.type if result else None
 
     def indexof(self,name):
-        return self.search_symbol(name).index
+        result = self.search_symbol(name)
+        return result.kind if result else None
+
     ### API END####
 

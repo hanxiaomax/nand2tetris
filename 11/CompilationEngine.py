@@ -421,7 +421,7 @@ class CompilationEngine(object):
 
         self.write_next_token() # ;
 
-    def subroutine_call(self,function_name):
+    def subroutine_call(self,identifier):
         """
         subroutineName '(' expressionList ')' | ( className | varName) '.' subroutineName '(' expressionList ')'
         不是子节点，不需要加tag
@@ -430,16 +430,31 @@ class CompilationEngine(object):
         # self.write_next_token() # subroutineName or ( className | varName)
         nargs = 0
         if self.peek_next() == "(":
-            self.write_next_token()
-            self.compile_expression_list()
-            self.write_next_token() # ")"
+            function_name = '{}.{}'.format(self.class_name, identifier)
+            nargs += 1
+            self.vm_writer.write_push('POINTER', 0)
+            
         elif self.peek_next() == ".":
             self.write_next_token() # "."
-            self.write_next_token() # "subroutineName"
-            self.write_next_token() # "("
-            print(self.compile_expression_list())
-            self.write_next_token() # ")"
+            method_token = self.write_next_token() # "subroutineName"
+            type = self.symbol_table.typeof(identifier)
+            if type : 
+                kind = self.symbol_table.kindof(identifier)
+                index = self.symbol_table.indexof(identifier)
+
+                self.vm_writer.write_push(kind, index)
+                function_name = '{}.{}'.format(type, method_token.name)
+                nargs += 1
+            else: # it's a class
+                class_name = identifier
+                function_name = '{}.{}'.format(class_name, method_token.name)
+
+        self.write_next_token() # "("
+        nargs += self.compile_expression_list()
+        self.write_next_token() # ")"
         
+        self.vm_writer.write_call(function_name, nargs)
+
         
 
 
