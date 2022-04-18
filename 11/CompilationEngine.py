@@ -19,18 +19,18 @@ OPERATORS = [
     ]
 UNARY_OPERATORS = [ '-', '~' ]
 ARITHMETIC = {
-'+': 'ADD',
-'-': 'SUB',
-'=': 'EQ',
-'>': 'GT',
-'<': 'LT',
-'&': 'AND',
-'|': 'OR'
+'+': 'add',
+'-': 'sub',
+'=': 'eq',
+'>': 'gt',
+'<': 'lt',
+'&': 'and',
+'|': 'or'
 }
 
 ARITHMETIC_UNARY = {
-'-': 'NEG',
-'~': 'NOT'
+'-': 'neg',
+'~': 'not'
 }
 class CompilationEngine(object):
     def __init__(self,jackfile,type="XML"):
