@@ -181,7 +181,7 @@ class CompilationEngine(object):
         self.symbol_table.start_subroutine(subroutine_name_token.name,self.class_name)
 
         if kind_token.name != "function":
-            self.define("this",self.class_name,"ARG")
+            self.symbol_table.define("this",self.class_name,"ARG")
         
         self.write_next_token()         # '('
         self.compile_parameter_list()
@@ -400,8 +400,8 @@ class CompilationEngine(object):
         do 语句不关心函数的返回值，但是此时返回值在栈顶，必须要将其pop掉
         """
         self.write_next_token() #do
-        self.write_next_token() # subroutineName or ( className | varName)
-        self.subroutine_call()
+        token = self.write_next_token() # subroutineName or ( className | varName)
+        self.subroutine_call(token.name)
         self.vm_writer.write_pop('TEMP', 0) # pop temp 0 丢弃返回值
         self.write_next_token() # ;
 
@@ -420,15 +420,16 @@ class CompilationEngine(object):
 
         self.write_next_token() # ;
 
-    def subroutine_call(self):
+    def subroutine_call(self,function_name):
         """
         subroutineName '(' expressionList ')' | ( className | varName) '.' subroutineName '(' expressionList ')'
         不是子节点，不需要加tag
         """
         # 特殊处理，将subroutineName或者( className | varName) 拿到外面写
         # self.write_next_token() # subroutineName or ( className | varName)
+        nargs = 0
         if self.peek_next() == "(":
-            self.write_next_token() # "("
+            self.write_next_token()
             self.compile_expression_list()
             self.write_next_token() # ")"
         elif self.peek_next() == ".":
@@ -437,6 +438,8 @@ class CompilationEngine(object):
             self.write_next_token() # "("
             self.compile_expression_list()
             self.write_next_token() # ")"
+        
+
 
     @tagger(tag="expression")
     def compile_expression(self):
@@ -477,11 +480,11 @@ class CompilationEngine(object):
     @tagger(tag="term")
     def compile_term(self):
         """
+        unaryOp term |
         integerConstant | stringConstant | keywordConstant | varName | 
         varName '[' expression']' | 
         subroutineCall: subroutineName '(' expressionList ')' | ( className | varName) '.' subroutineName '(' expressionList ')'
         '(' expression ')' | 
-        unaryOp term 
         """
         
         if self.peek_next() in UNARY_OPERATORS:  #unaryOp term 
@@ -499,7 +502,6 @@ class CompilationEngine(object):
             string_token = self.write_next_token()
             self.vm_writer.write_push('CONST', len(string_token.name))
             self.vm_writer.write_call('String.new', 1)
-
             for char in string_token.name:
                 self.vm_writer.write_push('CONST', ord(char))
                 self.vm_writer.write_call('String.appendChar', 2)
@@ -509,12 +511,11 @@ class CompilationEngine(object):
                 self.vm_writer.write_push('POINTER', 0)
             else:
                 self.vm_writer.write_push('CONST', 0)
-
             if keyword_token.name == 'true':
                 self.vm_writer.write_arithmetic('NOT')
-        else: #identifier 
-            var_name_token = self.write_next_token() #  varName |  subroutineCall
-            if self.peek_next() == "[": # expr
+        else: #identifier (varName | varName[] \ subroutineCall )
+            var_name_token = self.write_next_token() #  varName 
+            if self.peek_next() == "[": # varName[]  
                 self.write_next_token() # "["
                 self.compile_expression()  # expr
                 self.write_next_token() # "]"
@@ -525,8 +526,14 @@ class CompilationEngine(object):
                 self.vm_writer.write_arithmetic('ADD')
                 self.vm_writer.write_pop('POINTER', 1)
                 self.vm_writer.write_push('THAT', 0)
-            else:
-                self.subroutine_call()
+            elif self.peek_next() == "(" or self.peek_next() == ".": # subroutineCall
+                self.subroutine_call(var_name_token.name)
+            else: # varName but write already
+                # 只需要生成代码，xml 已经写完了
+                kind  = self.symbol_table.kindof(var_name_token.name)
+                index = self.symbol_table.indexof(var_name_token.name)
+                self.vm_writer.write_push(kind, index)
+
     
     def write(self,_xml):
         self.xml.write(_xml)
