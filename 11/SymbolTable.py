@@ -152,7 +152,7 @@ class SymbolTable(object):
 
     def indexof(self,name):
         result = self.search_symbol(name)
-        return result.kind if result else None
+        return result.index if result else None
 
     ### API END####
 

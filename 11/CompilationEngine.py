@@ -340,13 +340,13 @@ class CompilationEngine(object):
         self.write_next_token()     # ')'
         self.write_next_token()     # '{'
 
-        self.vm_writer.write_arithmetic('NOT') # not
+        self.vm_writer.write_arithmetic('not') # not
 
-        self.vm_writer.write_if('IF_FALSE_{}\n'.format(self.if_label_idx)) # if-goto IF_FALSE
+        self.vm_writer.write_if('IF_FALSE_{}'.format(self.if_label_idx)) # if-goto IF_FALSE
         
         self.compile_statements()    # statements 1 
 
-        self.vm_writer.write_goto('IF_END_{}\n'.format(self.if_label_idx)) # goto IF_END
+        self.vm_writer.write_goto('IF_END_{}'.format(self.if_label_idx)) # goto IF_END
 
         self.write_next_token()     # '}'
         
@@ -354,11 +354,11 @@ class CompilationEngine(object):
         if self.peek_next() == "else":
             self.write_next_token()     # 'else'
             self.write_next_token()     # '{'
-            self.vm_writer.write_label('IF_FALSE_{}\n'.format(self.if_label_idx)) # label IF_FALSE
+            self.vm_writer.write_label('IF_FALSE_{}'.format(self.if_label_idx)) # label IF_FALSE
             self.compile_statements()    # statements 2
             self.write_next_token()     # '}'
     
-        self.vm_writer.write_label('IF_END_{}\n'.format(self.if_label_idx))
+        self.vm_writer.write_label('IF_END_{}'.format(self.if_label_idx))
 
     @tagger(tag="whileStatement")
     def compile_while(self):
@@ -375,21 +375,21 @@ class CompilationEngine(object):
         """
         self.while_label_idx += 1
         
-        self.vm_writer.write_label('WHILE_START_{}\n'.format(self.while_label_idx)) # label WHILE_START
+        self.vm_writer.write_label('WHILE_START_{}'.format(self.while_label_idx)) # label WHILE_START
 
         self.write_next_token()     # 'while'
         self.write_next_token()     # '('
         self.compile_expression() # compiled(expr)
 
-        self.vm_writer.write_arithmetic('NOT') # 
+        self.vm_writer.write_arithmetic('not') # 
         self.write_next_token()     # ')'
         self.write_next_token()     # '{'
 
-        self.vm_writer.write_if('WHILE_END_{}\n'.format(self.while_label_idx)) # if-goto WHILE_START_END
+        self.vm_writer.write_if('WHILE_END_{}'.format(self.while_label_idx)) # if-goto WHILE_START_END
 
         self.compile_statements()    # statements 
-        self.vm_writer.write_goto('WHILE_START_{}\n'.format(self.while_label_idx)) # goto WHILE_START
-        self.vm_writer.write_label('WHILE_END{}\n'.format(self.while_label_idx)) # label WHILE_START_END
+        self.vm_writer.write_goto('WHILE_START_{}'.format(self.while_label_idx)) # goto WHILE_START
+        self.vm_writer.write_label('WHILE_END{}'.format(self.while_label_idx)) # label WHILE_START_END
 
         self.write_next_token()     # '}'
 
@@ -529,7 +529,7 @@ class CompilationEngine(object):
             else:
                 self.vm_writer.write_push('CONST', 0)
             if keyword_token.name == 'true':
-                self.vm_writer.write_arithmetic('NOT')
+                self.vm_writer.write_arithmetic('not')
         else: #identifier (varName | varName[] \ subroutineCall )
             var_name_token = self.write_next_token() #  varName 
             if self.peek_next() == "[": # varName[]  
@@ -540,7 +540,7 @@ class CompilationEngine(object):
                 index = self.symbol_table.indexof(var_name_token.name)
                 self.vm_writer.write_push(kind, index)
 
-                self.vm_writer.write_arithmetic('ADD')
+                self.vm_writer.write_arithmetic('add')
                 self.vm_writer.write_pop('POINTER', 1)
                 self.vm_writer.write_push('THAT', 0)
             elif self.peek_next() == "(" or self.peek_next() == ".": # subroutineCall
