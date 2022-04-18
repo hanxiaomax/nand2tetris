@@ -102,9 +102,10 @@ class CompilationEngine(object):
             def wrapper(self, *args, **kwargs):
                 self.write_non_terminal_tag(tag)
                 self.increase_indent()
-                func(self, *args, **kwargs)
+                ret = func(self, *args, **kwargs)
                 self.decrease_indent()
                 self.write_non_terminal_tag("/"+tag)
+                return ret
             return wrapper
         return deco
     
@@ -436,8 +437,9 @@ class CompilationEngine(object):
             self.write_next_token() # "."
             self.write_next_token() # "subroutineName"
             self.write_next_token() # "("
-            self.compile_expression_list()
+            print(self.compile_expression_list())
             self.write_next_token() # ")"
+        
         
 
 
