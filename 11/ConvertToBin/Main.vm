@@ -6,34 +6,34 @@ call Main.fillMemory 3
 pop temp 0
 push constant 8000
 call Memory.peek 1
-pop local VAR
-push local VAR
+pop local 0
+push local 0
 call Main.convert 1
 pop temp 0
 push constant 0
 function Main.main 1
 push constant 0
 not
-pop local VAR
+pop local 2
 label WHILE_START_1
-push local VAR
+push local 2
 not
 if-goto WHILE_END_1
-push local VAR
+push local 1
 push constant 1
 add
-pop local VAR
-push local VAR
+pop local 1
+push local 0
 call Main.nextMask 1
-pop local VAR
-push local VAR
+pop local 0
+push local 1
 push constant 16
 gt
 not
 not
 if-goto IF_FALSE_1
-push argument ARG
-push local VAR
+push argument 0
+push local 0
 and
 push constant 0
 eq
@@ -41,7 +41,7 @@ not
 not
 if-goto IF_FALSE_2
 push constant 8000
-push local VAR
+push local 1
 add
 push constant 1
 call Memory.poke 2
@@ -49,22 +49,22 @@ pop temp 0
 goto IF_END_2
 label IF_FALSE_2
 push constant 8000
-push local VAR
+push local 1
 add
 push constant 0
 call Memory.poke 2
 pop temp 0
 label IF_END_2
-goto IF_END_2
-label IF_FALSE_2
+goto IF_END_1
+label IF_FALSE_1
 push constant 0
-pop local VAR
-label IF_END_2
+pop local 2
+label IF_END_1
 goto WHILE_START_1
-label WHILE_END1
+label WHILE_END_1
 push constant 0
 function Main.convert 3
-push argument ARG
+push argument 0
 push constant 0
 eq
 not
@@ -72,30 +72,30 @@ if-goto IF_FALSE_3
 push constant 1
 goto IF_END_3
 label IF_FALSE_3
-push argument ARG
+push argument 0
 push constant 2
 call Math.multiply 2
 label IF_END_3
 function Main.nextMask 0
 label WHILE_START_2
-push argument ARG
+push argument 1
 push constant 0
 gt
 not
 if-goto WHILE_END_2
-push argument ARG
-push argument ARG
+push argument 0
+push argument 2
 call Memory.poke 2
 pop temp 0
-push argument ARG
+push argument 1
 push constant 1
 sub
-pop argument ARG
-push argument ARG
+pop argument 1
+push argument 0
 push constant 1
 add
-pop argument ARG
+pop argument 0
 goto WHILE_START_2
-label WHILE_END2
+label WHILE_END_2
 push constant 0
 function Main.fillMemory 0

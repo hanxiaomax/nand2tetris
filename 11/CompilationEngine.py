@@ -334,6 +334,7 @@ class CompilationEngine(object):
         label IF_END
         """
         self.if_label_idx += 1
+        lable_idx = self.if_label_idx # 必须保存一份局部变量，否则在嵌套时会互相干扰
         self.write_next_token()     # if
         self.write_next_token()     # '('
         self.compile_expression()    # expression  # compiled（expr)
@@ -342,23 +343,22 @@ class CompilationEngine(object):
 
         self.vm_writer.write_arithmetic('not') # not
 
-        self.vm_writer.write_if('IF_FALSE_{}'.format(self.if_label_idx)) # if-goto IF_FALSE
+        self.vm_writer.write_if('IF_FALSE_{}'.format(lable_idx)) # if-goto IF_FALSE
         
         self.compile_statements()    # statements 1 
 
-        self.vm_writer.write_goto('IF_END_{}'.format(self.if_label_idx)) # goto IF_END
+        self.vm_writer.write_goto('IF_END_{}'.format(lable_idx)) # goto IF_END
 
         self.write_next_token()     # '}'
         
-        
+        self.vm_writer.write_label('IF_FALSE_{}'.format(lable_idx)) # label IF_FALSE
         if self.peek_next() == "else":
             self.write_next_token()     # 'else'
             self.write_next_token()     # '{'
-            self.vm_writer.write_label('IF_FALSE_{}'.format(self.if_label_idx)) # label IF_FALSE
             self.compile_statements()    # statements 2
             self.write_next_token()     # '}'
     
-        self.vm_writer.write_label('IF_END_{}'.format(self.if_label_idx))
+        self.vm_writer.write_label('IF_END_{}'.format(lable_idx))
 
     @tagger(tag="whileStatement")
     def compile_while(self):
@@ -374,8 +374,8 @@ class CompilationEngine(object):
         label WHILE_START_END
         """
         self.while_label_idx += 1
-        
-        self.vm_writer.write_label('WHILE_START_{}'.format(self.while_label_idx)) # label WHILE_START
+        lable_idx = self.while_label_idx
+        self.vm_writer.write_label('WHILE_START_{}'.format(lable_idx)) # label WHILE_START
 
         self.write_next_token()     # 'while'
         self.write_next_token()     # '('
@@ -385,11 +385,11 @@ class CompilationEngine(object):
         self.write_next_token()     # ')'
         self.write_next_token()     # '{'
 
-        self.vm_writer.write_if('WHILE_END_{}'.format(self.while_label_idx)) # if-goto WHILE_START_END
+        self.vm_writer.write_if('WHILE_END_{}'.format(lable_idx)) # if-goto WHILE_START_END
 
         self.compile_statements()    # statements 
-        self.vm_writer.write_goto('WHILE_START_{}'.format(self.while_label_idx)) # goto WHILE_START
-        self.vm_writer.write_label('WHILE_END{}'.format(self.while_label_idx)) # label WHILE_START_END
+        self.vm_writer.write_goto('WHILE_START_{}'.format(lable_idx)) # goto WHILE_START
+        self.vm_writer.write_label('WHILE_END_{}'.format(lable_idx)) # label WHILE_START_END
 
         self.write_next_token()     # '}'
 
