@@ -5,12 +5,14 @@ class UnknownSegment(Exception):
         return "Unkown segment [{}]".format(self.segment) 
 
 
-SEGMENTS_MAP = {
+KIND_SEGMENTS_MAP = {
+    "FIELD":"this",  # special mapping. field is object members, store in this segment
+    "VAR":"local",  # special mapping. var is for local
     "CONST":"constant", 
     "ARG":"argument", 
-    "VAR":"local",  # var is for local
     "STATIC":"static", 
-    "THIS":"this", 
+    "LOCAL":"local",
+    "THIS":"this",
     "THAT":"that", 
     "POINTER":"pointer", 
     "TEMP":"temp"
@@ -21,17 +23,23 @@ class VMWriter(object):
     def __init__(self,output):
         self.output = open(output,"w")
     
-    def write_push(self,segment,index):
-        if segment not in SEGMENTS_MAP:
-            raise UnknownSegment(segment)
+    def write_push(self,kind,index_or_int):
+        """_summary_
+        Args:
+            kind (_type_): 变量作用域类型
+            index_or_int (_type_): 如果是内存段，则为变量在该内存段的序号，如果是const，则为一个正数
+        """
+        if kind not in KIND_SEGMENTS_MAP:
+            raise UnknownSegment(kind)
         
-        self.write('push {} {}'.format(SEGMENTS_MAP[segment], index))
+        self.write('pop {} {}'.format(KIND_SEGMENTS_MAP[kind], index_or_int))
         
-    def write_pop(self,segment,index):
-        if segment not in SEGMENTS_MAP:
-            raise UnknownSegment(segment)
         
-        self.write('pop {} {}'.format(SEGMENTS_MAP[segment], index))
+    def write_pop(self,kind,index_or_int):
+        if kind not in KIND_SEGMENTS_MAP:
+            raise UnknownSegment(kind)
+        
+        self.write('pop {} {}'.format(KIND_SEGMENTS_MAP[kind], index_or_int))
     
     def write_arithmetic(self,command):
         self.write(command + '')
