@@ -1,0 +1,178 @@
+[
+    {
+        "name": "Bat.jack",
+        "type": "static",
+        "entry": {}
+    },
+    {
+        "name": "class",
+        "type": "Bat",
+        "entry": {
+            "x": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 0
+            },
+            "y": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 1
+            },
+            "width": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 2
+            },
+            "height": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 3
+            },
+            "direction": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 4
+            }
+        }
+    },
+    {
+        "name": "new",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Bat",
+                "kind": "ARG",
+                "index": 0
+            },
+            "Ax": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 1
+            },
+            "Ay": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 2
+            },
+            "Awidth": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 3
+            },
+            "Aheight": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 4
+            }
+        }
+    },
+    {
+        "name": "dispose",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Bat",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "show",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Bat",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "hide",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Bat",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "draw",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Bat",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "setDirection",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Bat",
+                "kind": "ARG",
+                "index": 0
+            },
+            "Adirection": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 1
+            }
+        }
+    },
+    {
+        "name": "getLeft",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Bat",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "getRight",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Bat",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "setWidth",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Bat",
+                "kind": "ARG",
+                "index": 0
+            },
+            "Awidth": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 1
+            }
+        }
+    },
+    {
+        "name": "move",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Bat",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    }
+]

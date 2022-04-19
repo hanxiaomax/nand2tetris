@@ -1,0 +1,283 @@
+[
+    {
+        "name": "Ball.jack",
+        "type": "static",
+        "entry": {}
+    },
+    {
+        "name": "class",
+        "type": "Ball",
+        "entry": {
+            "x": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 0
+            },
+            "y": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 1
+            },
+            "lengthx": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 2
+            },
+            "lengthy": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 3
+            },
+            "d": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 4
+            },
+            "straightD": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 5
+            },
+            "diagonalD": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 6
+            },
+            "invert": {
+                "type": "boolean",
+                "kind": "FIELD",
+                "index": 7
+            },
+            "positivex": {
+                "type": "boolean",
+                "kind": "FIELD",
+                "index": 8
+            },
+            "positivey": {
+                "type": "boolean",
+                "kind": "FIELD",
+                "index": 9
+            },
+            "leftWall": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 10
+            },
+            "rightWall": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 11
+            },
+            "topWall": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 12
+            },
+            "bottomWall": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 13
+            },
+            "wall": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 14
+            }
+        }
+    },
+    {
+        "name": "new",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Ball",
+                "kind": "ARG",
+                "index": 0
+            },
+            "Ax": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 1
+            },
+            "Ay": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 2
+            },
+            "AleftWall": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 3
+            },
+            "ArightWall": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 4
+            },
+            "AtopWall": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 5
+            },
+            "AbottomWall": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 6
+            }
+        }
+    },
+    {
+        "name": "dispose",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Ball",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "show",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Ball",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "hide",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Ball",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "draw",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Ball",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "getLeft",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Ball",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "getRight",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Ball",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "setDestination",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Ball",
+                "kind": "ARG",
+                "index": 0
+            },
+            "destx": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 1
+            },
+            "desty": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 2
+            },
+            "dx": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 0
+            },
+            "dy": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 1
+            },
+            "temp": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 2
+            }
+        }
+    },
+    {
+        "name": "move",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Ball",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "bounce",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "Ball",
+                "kind": "ARG",
+                "index": 0
+            },
+            "bouncingDirection": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 1
+            },
+            "newx": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 0
+            },
+            "newy": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 1
+            },
+            "divLengthx": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 2
+            },
+            "divLengthy": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 3
+            },
+            "factor": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 4
+            }
+        }
+    }
+]

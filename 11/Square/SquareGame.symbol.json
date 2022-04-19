@@ -1,0 +1,77 @@
+[
+    {
+        "name": "SquareGame.jack",
+        "type": "static",
+        "entry": {}
+    },
+    {
+        "name": "class",
+        "type": "SquareGame",
+        "entry": {
+            "square": {
+                "type": "Square",
+                "kind": "FIELD",
+                "index": 0
+            },
+            "direction": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 1
+            }
+        }
+    },
+    {
+        "name": "new",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "SquareGame",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "dispose",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "SquareGame",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "moveSquare",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "SquareGame",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "run",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "SquareGame",
+                "kind": "ARG",
+                "index": 0
+            },
+            "key": {
+                "type": "char",
+                "kind": "VAR",
+                "index": 0
+            },
+            "exit": {
+                "type": "boolean",
+                "kind": "VAR",
+                "index": 1
+            }
+        }
+    }
+]

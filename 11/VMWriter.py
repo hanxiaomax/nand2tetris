@@ -4,7 +4,7 @@ class UnknownSegment(Exception):
     def __str__(self):
         return "Unkown segment [{}]".format(self.segment) 
 
-
+# 注意两个特殊的映射，FIELD属于类，应该存放在 this 段。而VAR则和local是一个含义
 KIND_SEGMENTS_MAP = {
     "FIELD":"this",  # special mapping. field is object members, store in this segment
     "VAR":"local",  # special mapping. var is for local

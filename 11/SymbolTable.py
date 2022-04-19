@@ -63,16 +63,7 @@ class SymbolTable(object):
         self.symbol_file =symbol_file
         # 创建默认的符号表
         
-
-    def dump(self):
-        with open(self.symbol_file,"w") as f:
-            json.dump(self.json_output, f ,indent=4,default=self.tojson)
-        
-        return self.symbol_file
-
-    def tojson(self,obj):
-        if isinstance(obj,Symbol):
-            return obj.tojson()
+    
 
     def create_table(self,name,_type):
         """
@@ -104,20 +95,25 @@ class SymbolTable(object):
         """
         退出 subroutine 时调用，用于清理当前 subroutine level的符号表
         """
-        # reset counter
-
-        del self.symbol_tables[-1] #方便打印，不直接删除而是修改index
+        del self.symbol_tables[-1] 
 
     def subroutine_scope_table(self):
         return self.symbol_tables[-1]
     
     def global_scope_table(self):
+        """
+        返回static符号表，即文件作用域
+        """
         return self.symbol_tables[0]
     
     def class_scope_table(self):
+        """
+        返回 class 符号表，即 field
+        """
         return self.symbol_tables[1]
 
     def define(self,name,_type,kind):
+        kind = kind.upper()
         if kind == "STATIC":
             table = self.global_scope_table()
         elif kind == "FIELD":
@@ -137,6 +133,23 @@ class SymbolTable(object):
                 return table["entry"][name]
         
         return None
+
+    def dump(self):
+        """
+        将符号表输出到json文件中。
+        注意，如果程序没有正确执行，输出的符号表也是不完整的。
+        """
+        with open(self.symbol_file,"w") as f:
+            json.dump(self.json_output, f ,indent=4,default=self.tojson)
+        
+        return self.symbol_file
+
+    def tojson(self,obj):
+        """
+        自定义的序列化函数，针对不同类型的对象，调用其各自的序列化函数
+        """
+        if isinstance(obj,Symbol):
+            return obj.tojson()
 
     ### API START####
     def var_count(self,kind):

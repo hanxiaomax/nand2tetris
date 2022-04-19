@@ -75,6 +75,7 @@ class CompilationEngine(object):
         if self.has_more_tokens():
             next_token = self.tokens[self.index]
             return next_token.name
+
     def peek_next_type(self):
         if self.has_more_tokens():
             next_token = self.tokens[self.index]
@@ -143,7 +144,7 @@ class CompilationEngine(object):
         varName_token = self.write_next_token() # varName
         
         # 添加变量到符号表
-        self.symbol_table.define(varName_token.name,type_token.name,kind_token.name.upper())
+        self.symbol_table.define(varName_token.name,type_token.name,kind_token.name)
         # while self.current.name != ";":
         #     self.write_next_token()
         # 两种不同的写法，上面一种判断结束符，只要不是结束就写，不关心写的是什么
@@ -155,7 +156,7 @@ class CompilationEngine(object):
         while self.peek_next() == ",": # (',' varName)*
             self.write_next_token() # ","
             varName_token = self.write_next_token() # "varName"
-            self.symbol_table.define(varName_token.name,type_token.name,kind_token.name.upper())
+            self.symbol_table.define(varName_token.name,type_token.name,kind_token.name)
         
         self.write_next_token()#;
 
@@ -451,6 +452,7 @@ class CompilationEngine(object):
     def compile_expression(self):
         """
         term (op term)*
+        expression 内部只处理 op，其他的都在compile_term中处理
         """
         self.compile_term()
         while self.peek_next() in OPERATORS:
@@ -490,7 +492,7 @@ class CompilationEngine(object):
         integerConstant | stringConstant | keywordConstant | varName | 
         varName '[' expression']' | 
         subroutineCall: subroutineName '(' expressionList ')' | ( className | varName) '.' subroutineName '(' expressionList ')'
-        '(' expression ')' | 
+        '(' expression ')' |         
         """
         
         if self.peek_next() in UNARY_OPERATORS:  #unaryOp term 
@@ -501,20 +503,20 @@ class CompilationEngine(object):
             self.write_next_token() #(
             self.compile_expression() # expr
             self.write_next_token() # )
-        elif self.peek_next_type() == "INT_CONSTANT":# if exp is number n:
+        elif self.peek_next_type() == "INT_CONSTANT":# if exp is number n: 将常数压栈
             int_token = self.write_next_token()
             self.vm_writer.write_push('CONST', int_token.name) # push const n
         elif self.peek_next_type() == "STRING_CONSTANT":
             string_token = self.write_next_token()
-            self.vm_writer.write_push('CONST', len(string_token.name))
-            self.vm_writer.write_call('String.new', 1)
+            self.vm_writer.write_push('CONST', len(string_token.name)) # 将字符串常量压栈
+            self.vm_writer.write_call('String.new', 1) # 通过系统调用创建字符串对象
             for char in string_token.name:
                 self.vm_writer.write_push('CONST', ord(char))
-                self.vm_writer.write_call('String.appendChar', 2)
+                self.vm_writer.write_call('String.appendChar', 2) # 将字符串中的字符依次赋值给字符串
         elif self.peek_next_type() ==  "KEYWORD":
             keyword_token = self.write_next_token()
             if keyword_token.name == 'this':
-                self.vm_writer.write_push('POINTER', 0)
+                self.vm_writer.write_push('POINTER', 0) # pointer 0 对应 THIS
             else:
                 self.vm_writer.write_push('CONST', 0)
             if keyword_token.name == 'true':

@@ -1,0 +1,138 @@
+[
+    {
+        "name": "PongGame.jack",
+        "type": "static",
+        "entry": {
+            "instance": {
+                "type": "PongGame",
+                "kind": "STATIC",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "class",
+        "type": "PongGame",
+        "entry": {
+            "bat": {
+                "type": "Bat",
+                "kind": "FIELD",
+                "index": 0
+            },
+            "ball": {
+                "type": "Ball",
+                "kind": "FIELD",
+                "index": 1
+            },
+            "wall": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 2
+            },
+            "exit": {
+                "type": "boolean",
+                "kind": "FIELD",
+                "index": 3
+            },
+            "score": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 4
+            },
+            "lastWall": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 5
+            },
+            "batWidth": {
+                "type": "int",
+                "kind": "FIELD",
+                "index": 6
+            }
+        }
+    },
+    {
+        "name": "new",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "PongGame",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "dispose",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "PongGame",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "newInstance",
+        "type": "Subroutine",
+        "entry": {}
+    },
+    {
+        "name": "getInstance",
+        "type": "Subroutine",
+        "entry": {}
+    },
+    {
+        "name": "run",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "PongGame",
+                "kind": "ARG",
+                "index": 0
+            },
+            "key": {
+                "type": "char",
+                "kind": "VAR",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "moveBall",
+        "type": "Subroutine",
+        "entry": {
+            "this": {
+                "type": "PongGame",
+                "kind": "ARG",
+                "index": 0
+            },
+            "bouncingDirection": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 0
+            },
+            "batLeft": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 1
+            },
+            "batRight": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 2
+            },
+            "ballLeft": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 3
+            },
+            "ballRight": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 4
+            }
+        }
+    }
+]

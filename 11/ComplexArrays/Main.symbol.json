@@ -1,0 +1,60 @@
+[
+    {
+        "name": "Main.jack",
+        "type": "static",
+        "entry": {}
+    },
+    {
+        "name": "class",
+        "type": "Main",
+        "entry": {}
+    },
+    {
+        "name": "main",
+        "type": "Subroutine",
+        "entry": {
+            "a": {
+                "type": "Array",
+                "kind": "VAR",
+                "index": 0
+            },
+            "b": {
+                "type": "Array",
+                "kind": "VAR",
+                "index": 1
+            },
+            "c": {
+                "type": "Array",
+                "kind": "VAR",
+                "index": 2
+            }
+        }
+    },
+    {
+        "name": "double",
+        "type": "Subroutine",
+        "entry": {
+            "a": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 0
+            }
+        }
+    },
+    {
+        "name": "fill",
+        "type": "Subroutine",
+        "entry": {
+            "a": {
+                "type": "Array",
+                "kind": "ARG",
+                "index": 0
+            },
+            "size": {
+                "type": "int",
+                "kind": "ARG",
+                "index": 1
+            }
+        }
+    }
+]

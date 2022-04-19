@@ -1,0 +1,23 @@
+[
+    {
+        "name": "Main.jack",
+        "type": "static",
+        "entry": {}
+    },
+    {
+        "name": "class",
+        "type": "Main",
+        "entry": {}
+    },
+    {
+        "name": "main",
+        "type": "Subroutine",
+        "entry": {
+            "game": {
+                "type": "PongGame",
+                "kind": "VAR",
+                "index": 0
+            }
+        }
+    }
+]
