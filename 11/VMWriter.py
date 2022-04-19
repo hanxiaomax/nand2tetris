@@ -42,7 +42,10 @@ class VMWriter(object):
         self.write('pop {} {}'.format(KIND_SEGMENTS_MAP[kind], index_or_int))
     
     def write_arithmetic(self,command):
-        self.write(command + '')
+        """
+        only support lower case arithmetic op
+        """
+        self.write(command.lower() + '')
 
     def write_label(self,label):
         self.write('label {}'.format(label))

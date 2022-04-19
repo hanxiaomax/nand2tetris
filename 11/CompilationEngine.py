@@ -6,32 +6,23 @@ from VMWriter import VMWriter
 CLASS_VAR_DEC_TOKENS = [ "static", "field" ]
 SUBROUTINE_TOKENS = [ "function", "method", "constructor" ]
 STATEMENT_TOKENS = [ 'do', 'let', 'while', 'return', 'if' ]
-OPERATORS = [
-        '+',
-        '-',
-        '*',
-        '/',
-        '&',
-        '|',
-        '<',
-        '>',
-        '='
-    ]
-UNARY_OPERATORS = [ '-', '~' ]
-ARITHMETIC = {
-'+': 'add',
-'-': 'sub',
-'=': 'eq',
-'>': 'gt',
-'<': 'lt',
-'&': 'and',
-'|': 'or'
+OPERATORS = {
+        '+':'add',
+        '-':'sub',
+        '*':('Math.multiply',2),
+        '/':('Math.divide',2),
+        '&':'and',
+        '|':'or',
+        '<':'lt',
+        '>':'gt',
+        '=':'eq'
+}
+UNARY_OPERATORS =  {
+    '-':"neg", 
+    '~':"not" 
 }
 
-ARITHMETIC_UNARY = {
-'-': 'neg',
-'~': 'not'
-}
+
 class CompilationEngine(object):
     def __init__(self,jackfile,type="XML"):
         self.jackfile = jackfile
@@ -455,8 +446,6 @@ class CompilationEngine(object):
         
         self.vm_writer.write_call(function_name, nargs)
 
-        
-
 
     @tagger(tag="expression")
     def compile_expression(self):
@@ -468,12 +457,12 @@ class CompilationEngine(object):
             op_token = self.write_next_token()
             op = op_token.name
             self.compile_term()
-            if op in ARITHMETIC.keys():
-                self.vm_writer.write_arithmetic(ARITHMETIC[op])
-            elif op == '*':
-                self.vm_writer.write_call('Math.multiply', 2)
+            if op == '*':
+                self.vm_writer.write_call(*OPERATORS[op]) # Math.multiply 2 
             elif op == '/':
-                self.vm_writer.write_call('Math.divide', 2)
+                self.vm_writer.write_call(*OPERATORS[op]) # Math.divide 2
+            elif op in OPERATORS:
+                self.vm_writer.write_arithmetic(OPERATORS[op])
 
     @tagger(tag="expressionList")
     def compile_expression_list(self):
@@ -507,7 +496,7 @@ class CompilationEngine(object):
         if self.peek_next() in UNARY_OPERATORS:  #unaryOp term 
             op_token = self.write_next_token() # unaryOP
             self.compile_term() # term
-            self.vm_writer.write_arithmetic(ARITHMETIC_UNARY[op_token.name])
+            self.vm_writer.write_arithmetic(UNARY_OPERATORS[op_token.name])
         elif self.peek_next() == "(": #'(' expression ')' 
             self.write_next_token() #(
             self.compile_expression() # expr
@@ -540,7 +529,7 @@ class CompilationEngine(object):
                 index = self.symbol_table.indexof(var_name_token.name)
                 self.vm_writer.write_push(kind, index)
 
-                self.vm_writer.write_arithmetic('add')
+                self.vm_writer.write_arithmetic('ADD')
                 self.vm_writer.write_pop('POINTER', 1)
                 self.vm_writer.write_push('THAT', 0)
             elif self.peek_next() == "(" or self.peek_next() == ".": # subroutineCall

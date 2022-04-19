@@ -1,20 +1,18 @@
 [
     {
-        "name": "global",
+        "name": "Main.jack",
+        "type": "static",
         "entry": {}
     },
     {
         "name": "class",
+        "type": "Main",
         "entry": {}
     },
     {
-        "name": "Subroutine:main",
+        "name": "main",
+        "type": "Subroutine",
         "entry": {
-            "this": {
-                "type": "Main",
-                "kind": "ARG",
-                "index": 0
-            },
             "a": {
                 "type": "Array",
                 "kind": "VAR",
@@ -26,6 +24,11 @@
                 "index": 1
             },
             "i": {
+                "type": "int",
+                "kind": "VAR",
+                "index": 2
+            },
+            "sum": {
                 "type": "int",
                 "kind": "VAR",
                 "index": 3
