@@ -32,7 +32,7 @@ class VMWriter(object):
         if kind not in KIND_SEGMENTS_MAP:
             raise UnknownSegment(kind)
         
-        self.write('pop {} {}'.format(KIND_SEGMENTS_MAP[kind], index_or_int))
+        self.write('push {} {}'.format(KIND_SEGMENTS_MAP[kind], index_or_int))
         
         
     def write_pop(self,kind,index_or_int):
