@@ -55,6 +55,7 @@ class VMWriter(object):
         self.write('return')
 
     def write(self,code):
+        print("\t"+code)
         self.output.write(code+"\n")
 
     def close(self):

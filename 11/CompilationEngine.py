@@ -202,9 +202,6 @@ class CompilationEngine(object):
         
         while self.peek_next() == "var":
             self.compile_var_dec()
-        
-        if self.peek_next() in STATEMENT_TOKENS:
-            self.compile_statements()
 
         ## 输出一般函数实现指令
         ## function name nargs，函数foo的实现，使用nargs个局部变量
@@ -222,6 +219,8 @@ class CompilationEngine(object):
             self.vm_writer.write_push('ARG', 0)
             self.vm_writer.write_pop('POINTER', 0)
 
+        if self.peek_next() in STATEMENT_TOKENS:
+            self.compile_statements()
         self.write_next_token()# }
 
     @tagger(tag="parameterList")
@@ -419,6 +418,7 @@ class CompilationEngine(object):
         else: # 无返回值
             self.vm_writer.write_push("CONST",0) # push constant 0
 
+        self.vm_writer.write_return()
         self.write_next_token() # ;
 
     def subroutine_call(self,identifier):
