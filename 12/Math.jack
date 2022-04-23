@@ -38,7 +38,13 @@ class Math {
         }
         return x;
     }
+    function boolean bit(int x, int n) {
+        return ~((x & bitArray[n]) = 0);
+    }
 
+    function int two_to_the(int power) {
+        return bitArray[power];
+    }
     /** Returns the product of x and y. 
      *  When a Jack compiler detects the multiplication operator '*' in the 
      *  program's code, it handles it by invoking this method. In other words,
@@ -105,7 +111,7 @@ class Math {
         let y = 0;
         let j = 7;      // = #bits / 2 - 1
         while( ~(j < 0) ) {
-            let approx = y + powers_of_two[j];
+            let approx = y + bitArray[j];
             let approx_squared = approx * approx;
             if( ~(approx_squared > x) & (approx_squared > 0) ) {    // in case of overflow
                 let y = approx;
@@ -139,6 +145,6 @@ class Math {
         var int q;
         
         let q = Math.divide(a,b);
-        return x - (q*y);
+        return a - (q*b);
     }
 }
